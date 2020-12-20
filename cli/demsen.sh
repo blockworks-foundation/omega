@@ -6,4 +6,4 @@ CONTRACT_KEYS_PATH="../ui/src/contract_keys.json"
 ICON_URLS="https://az620379.vo.msecnd.net/images/Contracts/small_29b55b5a-6faf-4041-8b21-ab27421d0ade.png https://az620379.vo.msecnd.net/images/Contracts/small_77aea45d-8c93-46d6-b338-43a6af0ba8e1.png"
 cargo run -- $CLUSTER init-omega-contract --payer $KEYPAIR --omega-program-id $OMEGA_PROGRAM_ID --oracle $MY_ADDR \
     --quote-mint $USDC --num-outcomes 2 --outcome-names $OUTCOME_NAMES --contract-name $CONTRACT_NAME \
-    --details "$DETAILS" --exp-time "2020-02-01 00:00:00" --contract-keys-path $CONTRACT_KEYS_PATH --icon-urls $ICON_URLS
+    --details "$DETAILS" --exp-time "2021-02-01 00:00:00" --contract-keys-path $CONTRACT_KEYS_PATH --icon-urls $ICON_URLS

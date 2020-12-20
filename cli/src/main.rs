@@ -2,10 +2,10 @@ use std::fs::File;
 use std::mem::size_of;
 use std::str::FromStr;
 
-use anyhow::Result;
+use anyhow::{Result, Error};
 use chrono::NaiveDateTime;
 use clap::Clap;
-use client::utils::{create_account_rent_exempt, create_and_init_mint, create_signer_key_and_nonce, create_token_account, get_account, mnemonic_to_keypair, read_keypair_file, send_instructions, Cluster};
+use client::utils::{create_account_rent_exempt, create_and_init_mint, create_signer_key_and_nonce, create_token_account, get_account, mnemonic_to_keypair, read_keypair_file, send_instructions, Cluster, create_account_instr, create_token_account_instr, create_and_init_mint_instr};
 use omega::instruction::{init_omega_contract, resolve};
 use omega::state::{DETAILS_BUFFER_LEN, OmegaContract};
 use serde_json::{json, Value};
@@ -14,6 +14,7 @@ use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::{Keypair, Signer, write_keypair_file};
 use spl_token::state::Mint;
 use solana_sdk::commitment_config::CommitmentConfig;
+use std::{thread, time};
 
 
 #[derive(Clap, Debug)]
@@ -128,26 +129,49 @@ pub fn start(opts: Opts) -> Result<()> {
             let omega_program_id = Pubkey::from_str(omega_program_id.as_str())?;
             let oracle_pk = Pubkey::from_str(oracle.as_str())?;
             let quote_mint_pk = Pubkey::from_str(quote_mint.as_str())?;
+            let mut instructions = vec![];
+            let mut signers = vec![];
 
-            let omega_contract_pk = create_account_rent_exempt(
-                &client, &payer, size_of::<OmegaContract>(), &omega_program_id
-            )?.pubkey();
+            let omega_contract_kp = Keypair::new();
+            let omega_contract_pk = omega_contract_kp.pubkey();
+            instructions.push(create_account_instr(
+                &client, &payer, &omega_contract_kp,
+                size_of::<OmegaContract>(), &omega_program_id
+            )?);
+            signers.push(&payer);
+            signers.push(&omega_contract_kp);
 
             let (signer_key, signer_nonce) = create_signer_key_and_nonce(&omega_program_id, &omega_contract_pk);
 
-            let quote_vault_pk = create_token_account(&client, &quote_mint_pk, &signer_key, &payer)?.pubkey();
+            let quote_vault_kp = Keypair::new();
+            let quote_vault_pk = quote_vault_kp.pubkey();
+            create_token_account_instr(
+                &client,
+                &quote_vault_kp,
+                &quote_mint_pk,
+                &signer_key,
+                &payer,
+                &mut instructions,
+                &mut signers
+            )?;
 
             let quote_mint: Mint = get_account(&client, &quote_mint_pk)?;
             let mut outcome_infos = Vec::<Value>::new();
             let mut outcome_mint_pks = vec![];
+            let mut outcome_mint_kps = vec![];
             for i in 0..num_outcomes {
-                let outcome_mint_kp = Keypair::new();
-                create_and_init_mint(
+                outcome_mint_kps.push(Keypair::new());
+            }
+            for i in 0..num_outcomes {
+                let outcome_mint_kp = &outcome_mint_kps[i];
+                create_and_init_mint_instr(
                     &client,
+                    outcome_mint_kp,
                     &payer,
-                    &outcome_mint_kp,
                     &signer_key,
-                    quote_mint.decimals
+                    quote_mint.decimals,
+                    &mut instructions,
+                    &mut signers
                 )?;
 
                 let outcome_json = json!(
@@ -160,6 +184,10 @@ pub fn start(opts: Opts) -> Result<()> {
                 outcome_infos.push(outcome_json);
                 outcome_mint_pks.push(outcome_mint_kp.pubkey());
             }
+
+            // send first transaction because otherwise it's too big
+            println!("Sending account creation instructions");
+            send_instructions(&client, instructions, signers, &payer.pubkey())?;
 
             let exp_time = NaiveDateTime::parse_from_str(exp_time.as_str(), "%Y-%m-%d %H:%M:%S")?;
             let exp_time = exp_time.timestamp() as u64;
@@ -179,7 +207,8 @@ pub fn start(opts: Opts) -> Result<()> {
 
             let instructions = vec![instruction];
             let signers = vec![&payer];
-
+            thread::sleep(time::Duration::from_secs(5));
+            println!("Sending InitOmegaContract instruction");
             send_instructions(&client, instructions, signers, &payer.pubkey())?;
 
             let contract_keys = json!({
@@ -215,7 +244,15 @@ pub fn start(opts: Opts) -> Result<()> {
             let payer = read_keypair_file(payer.as_str())?;
             let oracle_keypair = read_keypair_file(oracle_keypair.as_str())?;
             let contract_keys: Value = serde_json::from_reader(File::open(contract_keys_path)?)?;
-            let winner_pk = Pubkey::from_str(winner.as_str())?;
+
+            let outcomes = contract_keys["outcomes"].as_array().unwrap();
+            let outcome = outcomes.iter().find(
+                |v| v["name"].as_str().unwrap() == winner.as_str()
+            );
+            let winner_pk = match outcome {
+                None => Pubkey::from_str(winner.as_str())?,
+                Some(v) => Pubkey::from_str(v["mint_pk"].as_str().unwrap())?
+            };
             let omega_program_id = Pubkey::from_str(contract_keys["omega_program_id"].as_str().unwrap())?;
             let omega_contract_pk = Pubkey::from_str(contract_keys["omega_contract_pk"].as_str().unwrap())?;
 

@@ -1,23 +1,23 @@
 {
   "contract_name": "DEMSEN",
   "details": "Resolution: The number of U.S. senators who were elected with a ballot-listed or otherwise identifiable affiliation with, or who have publicly stated an intention to caucus with the Democratic party shall be greater than or equal to 50 if the Vice President is affiliated with the Democratic party or greater than 50 otherwise. The YES tokens can be redeemed for 1 USDC if the resolution is true at 2021-02-01 00:00:00 UTC and the NO tokens can be redeemed for 1 USDC otherwise. This contract will be resolved in the same way as the similar Democratic contract on PredictIt at this URL: https://www.predictit.org/markets/detail/4366",
-  "omega_contract_pk": "GXo78p8hYX23VxQrbDKAsiYbbAQnSvVYdrEAsyq8ozzK",
-  "omega_program_id": "6U8s6wYGFnQfq9oTNHBbGuvwVLdF3NqQfNC1WfafqEFF",
-  "oracle_pk": "FJpmfVUmd75kVieMjBLixdk5611xvXVUNadhcSbhE4Hm",
+  "omega_contract_pk": "4oFu9SfKH6RGRJJuVhjvMqNauRb7Uj9ZWnesQL2wisj7",
+  "omega_program_id": "B9rnCS9cEhEr3Lckrb7ZbFJGy7s1pqxw7sQ4KNUjLgQm",
+  "oracle_pk": "FinVobfi4tbdMdfN9jhzUuDVqGXfcFnRGX57xHcTWLfW",
   "outcomes": [
     {
       "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_29b55b5a-6faf-4041-8b21-ab27421d0ade.png",
-      "mint_pk": "6edJEfmX1MXgH4QqxCiAkbSnnkRB5pyBBQQQRswbHG2u",
+      "mint_pk": "7wBnmbhCCorsF8PxWo6aCe7yAJcAcL9tyvxHuveSvxwC",
       "name": "YES"
     },
     {
       "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_77aea45d-8c93-46d6-b338-43a6af0ba8e1.png",
-      "mint_pk": "6rvUGrqbdWsGYGVrPpTew74vYqBad1LEf5m9rNSu4ouf",
+      "mint_pk": "H5fo1ga9xHcp2bsmqRCRmSZwWWPtFPvGo6JxE4Wz6uSs",
       "name": "NO"
     }
   ],
-  "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
-  "quote_vault_pk": "EyVt9TBAmGkEYJUvncoxSXeopWEndbzzwFoWvuvCRXpL",
-  "signer_nonce": 0,
-  "signer_pk": "ATE8TcBD5RRHDSn9ve5FWt4KJqsMW9H7LyoQ64Dqi8Cu"
+  "quote_mint_pk": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "quote_vault_pk": "6wUcM28vXMfjGM2Tnieh6EXFz5GmDVNbkx2dUJsgDntu",
+  "signer_nonce": 2,
+  "signer_pk": "6YXj7dffbGmqzusXuFRbxJdqtBXmxhGZCUtA3CWjq3RT"
 }

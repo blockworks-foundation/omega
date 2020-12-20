@@ -23,8 +23,8 @@ rm -rf config
 NDEBUG=1 ./run.sh
 
 # switch terminal, set up testing
-CLUSTER=devnet
-CLUSTER_URL=https://devnet.solana.com
+CLUSTER=localnet
+CLUSTER_URL="http://localhost:8899"
 solana config set --url $CLUSTER_URL
 solana-keygen new
 
@@ -57,6 +57,6 @@ cargo run sollet-to-local --keypair-path ~/.config/solana/id.json --sollet-mnemo
 
 ### resolve
 ```
-WINNER="YES"
+WINNER=NO
 cargo run resolve --oracle-keypair $KEYPAIR --payer $KEYPAIR --winner $WINNER --contract-keys-path $CONTRACT_KEYS_PATH
 ```
