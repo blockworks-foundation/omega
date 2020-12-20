@@ -1,6 +1,6 @@
 ## ⚠️ Warning
 
-Any content produced by Blockworks, or developer resources that Blockworks provides, are for educational and inspiration purposes only. Solana does not encourage, induce or sanction the deployment of any such applications in violation of applicable laws or regulations.
+Any content produced by Blockworks, or developer resources that Blockworks provides, are for educational and inspiration purposes only. Blockworks does not encourage, induce or sanction the deployment of any such applications in violation of applicable laws or regulations.
 
 
 ## Deployment

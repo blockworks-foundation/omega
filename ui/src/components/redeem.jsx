@@ -5,7 +5,7 @@ import {
   sendAndConfirmRawTransaction,
   SystemProgram,
   Transaction,
-  TransactionInstruction
+  TransactionInstruction,
 } from '@solana/web3.js';
 
 import {TokenInstructions} from '@project-serum/serum';
@@ -188,7 +188,7 @@ async function sendSignedTransaction(
     connection
 ) {
   const rawTransaction = signedTransaction.serialize();
-  return await sendAndConfirmRawTransaction(connection, rawTransaction, {commitment: "singleGossip"})
+  return await sendAndConfirmRawTransaction(connection, rawTransaction, {skipPreflight: true, commitment: "singleGossip"})
 }
 
 
@@ -207,7 +207,7 @@ export const RedeemView = (props) => {
       let data = await queryMarketContract(connection);
       let winner = new PublicKey(data.winner);
       let zeroPubkey = new PublicKey(new Uint8Array(32));
-      data['decided'] = winner === zeroPubkey;
+      data['decided'] = !winner.equals(zeroPubkey);
       setContractData(data);
     };
     fetchContractData();

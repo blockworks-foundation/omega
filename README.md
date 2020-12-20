@@ -1,5 +1,9 @@
 # omega
 
+## ⚠️ Warning
+
+Any content produced by Blockworks, or developer resources that Blockworks provides, are for educational and inspiration purposes only. Blockworks does not encourage, induce or sanction the deployment of any such applications in violation of applicable laws or regulations.
+
 
 ### setup testing
 ```
@@ -50,8 +54,9 @@ MNEMONIC="word0 word1 word2"
 PASSPHRASE="pass"
 cargo run sollet-to-local --keypair-path ~/.config/solana/id.json --sollet-mnemonic $MNEMONIC --passphrase $PASSPHRASE
 ```
+
 ### resolve
 ```
-WINNER="Ax4fmXGQkgKTmLEdQeBtE9ptnpjJyDPjQgnuTugbxtb8"
+WINNER="YES"
 cargo run resolve --oracle-keypair $KEYPAIR --payer $KEYPAIR --winner $WINNER --contract-keys-path $CONTRACT_KEYS_PATH
 ```

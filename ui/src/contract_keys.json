@@ -1,23 +1,23 @@
 {
   "contract_name": "DEMSEN",
-  "details": "Resolution: The number of U.S. senators who were elected with a ballot-listed or otherwise identifiable affiliation with, or who have publicly stated an intention to caucus with the Democratic party shall be greater than or equal to 50 if the Vice President is affiliated with the Democratic party or greater than 50 otherwise. The YES tokens can be redeemed for 1 USDC if the resolution is true at 2021-02-01 00:00:00 UTC and the NO tokens can be redeemed for 1 USDC otherwise. This contract will be resolved in the same way as the Democratic contract on PredictIt at this URL: https://www.predictit.org/markets/detail/4366",
-  "omega_contract_pk": "B5ZoQkBsxSvtuRRmtqbaXpnFjaiTXhiK528tZsA66jAm",
-  "omega_program_id": "13vjKM1HFhup2axciLDyx6QZ67H9ki1fcs828DKnGa53",
+  "details": "Resolution: The number of U.S. senators who were elected with a ballot-listed or otherwise identifiable affiliation with, or who have publicly stated an intention to caucus with the Democratic party shall be greater than or equal to 50 if the Vice President is affiliated with the Democratic party or greater than 50 otherwise. The YES tokens can be redeemed for 1 USDC if the resolution is true at 2021-02-01 00:00:00 UTC and the NO tokens can be redeemed for 1 USDC otherwise. This contract will be resolved in the same way as the similar Democratic contract on PredictIt at this URL: https://www.predictit.org/markets/detail/4366",
+  "omega_contract_pk": "GXo78p8hYX23VxQrbDKAsiYbbAQnSvVYdrEAsyq8ozzK",
+  "omega_program_id": "6U8s6wYGFnQfq9oTNHBbGuvwVLdF3NqQfNC1WfafqEFF",
   "oracle_pk": "FJpmfVUmd75kVieMjBLixdk5611xvXVUNadhcSbhE4Hm",
   "outcomes": [
     {
       "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_29b55b5a-6faf-4041-8b21-ab27421d0ade.png",
-      "mint_pk": "2qn4HeUksk5k9jbhkTQzVWXw8kfGcaYVJhkza9ue5k65",
+      "mint_pk": "6edJEfmX1MXgH4QqxCiAkbSnnkRB5pyBBQQQRswbHG2u",
       "name": "YES"
     },
     {
       "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_77aea45d-8c93-46d6-b338-43a6af0ba8e1.png",
-      "mint_pk": "6YwZzhRVhPD5UzJpKbzU24ym891FFaD2hdzBVM1A4zXB",
+      "mint_pk": "6rvUGrqbdWsGYGVrPpTew74vYqBad1LEf5m9rNSu4ouf",
       "name": "NO"
     }
   ],
   "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
-  "quote_vault_pk": "DxEVCG5eNhKV5Qrq7AS1CkqZh5W3HrbH9kCFhoybX9Z8",
-  "signer_nonce": 1,
-  "signer_pk": "wcKrWmAiZ5qJz9ELPCUAhvNzdfcb55Po29r5fS3e9Tf"
+  "quote_vault_pk": "EyVt9TBAmGkEYJUvncoxSXeopWEndbzzwFoWvuvCRXpL",
+  "signer_nonce": 0,
+  "signer_pk": "ATE8TcBD5RRHDSn9ve5FWt4KJqsMW9H7LyoQ64Dqi8Cu"
 }
