@@ -1,0 +1,37 @@
+import React, { useState } from "react";
+import { Button, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+
+
+const loadingIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+
+
+export const BetOutcome = (props: {
+  outcomeLabel: string;
+  outcomeImage: string;
+  className?: string;
+}) => {
+
+  return (
+    <>
+      <div>
+        <img src={outcomeImage} />
+      </div>
+      <div>
+        <h2>{outcomeLabel}</h2>
+      </div>
+
+      <div>
+        <Button
+          className="bet-button"
+          type="primary"
+          size="large"
+          onClick={connected ? handleSwap : wallet.connect}
+        >
+          <span>13¢</span>
+          {pendingTx && <Spin indicator={loadingIcon} className="trade-spinner" />}
+        </Button>
+      </div>
+    </>
+  );
+};
