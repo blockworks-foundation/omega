@@ -909,11 +909,12 @@ async function _addLiquidityNewPool(
   );
 
   const tokenSwapAccount = new Account();
-
+  console.log('token swap program id', programIds().swap.toString());
   const [authority, nonce] = await PublicKey.findProgramAddress(
     [tokenSwapAccount.publicKey.toBuffer()],
     programIds().swap
   );
+  console.log('authority', authority.toString());
 
   // create mint for pool liquidity token
   instructions.push(
@@ -974,6 +975,8 @@ async function _addLiquidityNewPool(
     SWAP_PROGRAM_OWNER_FEE_ADDRESS || wallet.publicKey,
     AccountLayout.span
   );
+
+  console.log('here0', SWAP_PROGRAM_OWNER_FEE_ADDRESS.toString(), wallet.publicKey.toString());
 
   // create all accounts in one transaction
   let tx = await sendTransaction(connection, wallet, instructions, [
