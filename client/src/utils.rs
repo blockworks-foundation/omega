@@ -3,7 +3,6 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, format_err, Result};
 use bytemuck::{bytes_of, Pod};
-// use rand::rngs::OsRng;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcSendTransactionConfig;
 use solana_client::rpc_request::RpcRequest;
