@@ -1,9 +1,21 @@
-# omega
+# Omega - decentralized predictions protocol
 
 ## ⚠️ Warning
 
 Any content produced by Blockworks, or developer resources that Blockworks provides, are for educational and inspiration purposes only. Blockworks does not encourage, induce or sanction the deployment of any such applications in violation of applicable laws or regulations.
 
+## Contribute
+Significant contributions to the source code may be compensated with a grant from the Blockworks Foundation.
+
+## To Do
+* UI performance - various features take too long to load (i.e. issue set in RedeemView sometimes takes 10 seconds)
+* List the YES and NO tokens on serum dex and provide liquidity
+* Show historical prices
+* Make a button to easily provide liquidity in one step
+* Make a button to correct mispricing (e.g. YES price + NO price > 1)
+* Show current position and profits
+* Move Redeem page contents to Exchange page
+* Hook up a USDC on ramp (e.g. Transak)
 
 ### setup testing
 ```
