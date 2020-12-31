@@ -1,21 +1,22 @@
+use std::{thread, time};
 use std::fs::File;
 use std::mem::size_of;
 use std::str::FromStr;
 
-use anyhow::{Result, Error};
+use anyhow::Result;
 use chrono::NaiveDateTime;
 use clap::Clap;
-use client::utils::{create_account_rent_exempt, create_and_init_mint, create_signer_key_and_nonce, create_token_account, get_account, mnemonic_to_keypair, read_keypair_file, send_instructions, Cluster, create_account_instr, create_token_account_instr, create_and_init_mint_instr};
+use client::utils::{Cluster, create_account_instr, create_and_init_mint_instr,
+                    create_signer_key_and_nonce, create_token_account_instr, get_account,
+                    mnemonic_to_keypair, read_keypair_file, send_instructions};
 use omega::instruction::{init_omega_contract, resolve};
 use omega::state::{DETAILS_BUFFER_LEN, OmegaContract};
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
+use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::{Keypair, Signer, write_keypair_file};
 use spl_token::state::Mint;
-use solana_sdk::commitment_config::CommitmentConfig;
-use std::{thread, time};
-
 
 #[derive(Clap, Debug)]
 pub struct Opts {
@@ -48,6 +49,8 @@ pub enum Command {
         details: String,
         #[clap(long)]
         exp_time: String,
+        #[clap(long)]
+        auto_exp_time: String,
         #[clap(long)]
         icon_urls: Option<Vec<String>>
     },
@@ -111,6 +114,7 @@ pub fn start(opts: Opts) -> Result<()> {
             outcome_names,
             details,
             exp_time,
+            auto_exp_time,
             icon_urls
         } => {
             println!("InitOmegaContract");
@@ -191,6 +195,8 @@ pub fn start(opts: Opts) -> Result<()> {
 
             let exp_time = NaiveDateTime::parse_from_str(exp_time.as_str(), "%Y-%m-%d %H:%M:%S")?;
             let exp_time = exp_time.timestamp() as u64;
+            let auto_exp_time = NaiveDateTime::parse_from_str(auto_exp_time.as_str(), "%Y-%m-%d %H:%M:%S")?;
+            let auto_exp_time = auto_exp_time.timestamp() as u64;
 
             let instruction = init_omega_contract(
                 &omega_program_id,
@@ -201,6 +207,7 @@ pub fn start(opts: Opts) -> Result<()> {
                 &signer_key,
                 outcome_mint_pks.as_slice(),
                 exp_time,
+                auto_exp_time,
                 signer_nonce,
                 details.as_str()
             )?;

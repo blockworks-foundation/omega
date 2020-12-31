@@ -39,6 +39,7 @@ pub struct OmegaContract {
     pub oracle: Pubkey,  // Right now it's just a single oracle who determines outcome resolution
     pub quote_mint: Pubkey,  // SPL token of quote currency where winning contract redeems to 1 lot size, e.g. USDC
     pub exp_time: u64,  // expiration timestamp in seconds since 1970
+    pub auto_exp_time: u64,  // time when all contracts become redeemable for 1 / num_outcomes
     pub vault: Pubkey,  // Where quote currency will be stored
     pub signer_key: Pubkey,
     pub signer_nonce: u64,

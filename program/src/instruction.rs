@@ -19,6 +19,7 @@ pub enum OmegaInstruction {
     ///   5. `[]` Rent sysvar account
     InitOmegaContract {
         exp_time: u64,
+        auto_exp_time: u64,
         signer_nonce: u64,
     },
 
@@ -76,6 +77,7 @@ pub enum OmegaInstruction {
     ///           pubkey and omega program id
     ///   6. `[writable]` winner_mint_acc - mint of winning outcome
     ///   7. `[writable]` winner_user_acc - user wallet of winning outcome
+    ///   8. `[]` clock_acc - sysvar Clock
     RedeemWinner {
         quantity: u64
     },
@@ -101,10 +103,11 @@ impl OmegaInstruction {
 
         Some(match discrim {
             0 => {
-                let data = array_ref![data, 0, 16];
-                let (exp_time, signer_nonce) = array_refs![data, 8, 8];
+                let data = array_ref![data, 0, 24];
+                let (exp_time, auto_exp_time, signer_nonce) = array_refs![data, 8, 8, 8];
                 OmegaInstruction::InitOmegaContract {
                     exp_time: u64::from_le_bytes(*exp_time),
+                    auto_exp_time: u64::from_le_bytes(*auto_exp_time),
                     signer_nonce: u64::from_le_bytes(*signer_nonce),
                 }
             }
@@ -151,6 +154,7 @@ pub fn init_omega_contract(
     signer_pk: &Pubkey,
     outcome_pks: &[Pubkey],
     exp_time: u64,
+    auto_exp_time: u64,
     signer_nonce: u64,
     details_str: &str
 ) -> Result<Instruction, ProgramError> {
@@ -170,6 +174,7 @@ pub fn init_omega_contract(
 
     let instr = OmegaInstruction::InitOmegaContract {
         exp_time,
+        auto_exp_time,
         signer_nonce
     };
 
@@ -276,6 +281,7 @@ pub fn redeem_winner(
         AccountMeta::new_readonly(*signer_pk, false),
         AccountMeta::new(*winner_mint_pk, false),
         AccountMeta::new(*winner_user_pk, false),
+        AccountMeta::new_readonly(solana_program::sysvar::clock::ID, false)
     ];
 
     let instr = OmegaInstruction::RedeemWinner { quantity };
