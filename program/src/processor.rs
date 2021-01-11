@@ -239,7 +239,6 @@ impl Processor {
         check_assert!(*vault_acc.key == omega_contract.vault)?;
         check_assert!(user_acc.is_signer)?;
 
-        // if winner is still default and clock is past auto exp time
         let clock = solana_program::clock::Clock::from_account_info(clock_acc)?;
         let curr_time = clock.unix_timestamp as u64;
 
@@ -248,6 +247,7 @@ impl Processor {
             check_assert!(curr_time >= omega_contract.auto_exp_time)?;
             // allow redemptions at 1 / num_outcomes
             quantity / (omega_contract.num_outcomes as u64)
+            // no need to check winner mint because token program will fail if it's not a mint controlled by omega
         } else {
             check_assert!(*winner_mint_acc.key == omega_contract.winner)?;
             quantity

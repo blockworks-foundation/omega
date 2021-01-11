@@ -8,7 +8,7 @@ use solana_program::pubkey::Pubkey;
 use enumflags2::BitFlags;
 
 pub const DETAILS_BUFFER_LEN: usize = 2048;
-pub const MAX_OUTCOMES: usize = 2;
+pub const MAX_OUTCOMES: usize = 8;
 
 pub trait Loadable: Pod {
     fn load_mut<'a>(account: &'a AccountInfo) -> Result<RefMut<'a, Self>, ProgramError> {
@@ -34,6 +34,8 @@ pub enum AccountFlag {
 
 #[derive(Copy, Clone)]
 #[repr(C)]
+
+
 pub struct OmegaContract {
     pub account_flags: u64,
     pub oracle: Pubkey,  // Right now it's just a single oracle who determines outcome resolution
@@ -46,8 +48,11 @@ pub struct OmegaContract {
     pub winner: Pubkey,  // mint address of winning token. Will be 0 if not yet resolved
     pub outcomes: [Pubkey; MAX_OUTCOMES],
     pub num_outcomes: usize,
+
     pub details: [u8; DETAILS_BUFFER_LEN]  // utf-8 encoded string (compressed?) of details about how to resolve contract
 }
+
+
 unsafe impl Zeroable for OmegaContract {}
 unsafe impl Pod for OmegaContract {}
 impl Loadable for OmegaContract {}
