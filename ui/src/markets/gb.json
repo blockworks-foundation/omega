@@ -1,0 +1,23 @@
+{
+  "contract_name": "Green Bay Packers",
+  "details": "None",
+  "omega_contract_pk": "7zKqUHTjH99fyUTBR9uQA6mWnTfKCJpz5ATPvcZrFB1u",
+  "omega_program_id": "9sSiUH8wZ1MCT3HJDYn8vMV57YuHQEXdNjVoncB5z6Cw",
+  "oracle_pk": "AiV4j8BnezLr6xojE2P7DT1cMCQKwybinSYBusoECm9w",
+  "outcomes": [
+    {
+      "icon": "/markets/SUPERBOWL21/gb.png",
+      "mint_pk": "CLVCpSeTUe9r3dGVUnd4tjv3kVYVntoTd54QMimxyQhQ",
+      "name": "GB-YES"
+    },
+    {
+      "icon": "/markets/SUPERBOWL21/gb_no.png",
+      "mint_pk": "76PF2sWfMJsTJ8kiFc5g7ARfn7TTCBDUUrxAV1Lkterz",
+      "name": "GB-NO"
+    }
+  ],
+  "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
+  "quote_vault_pk": "5rtxiUQSFwccZC8jhG3e2svCckuNSbVvMCgsAZUcQe6D",
+  "signer_nonce": 1,
+  "signer_pk": "5cPdPnb92g3YnCALWnWe6ASzzj6o8urmHm5DnUP5B3iz"
+}

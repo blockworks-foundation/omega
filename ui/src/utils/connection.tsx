@@ -12,6 +12,7 @@ import { notify } from "./notifications";
 import { ExplorerLink } from "../components/explorerLink";
 
 import contract_keys from "../contract_keys.json";
+import { markets } from "../markets";
 
 export type Outcome = {
   mint_pk: string,
@@ -98,19 +99,19 @@ export function ConnectionProvider({ children = undefined as any }) {
           return map;
         }, new Map<string, KnownToken>());
 
-        contract_keys.outcomes.forEach(function (outcome: any) {
+        markets.forEach(function (market: any) {
+          market.outcomes.forEach(function (outcome: any) {
+            let outcomeTk = {
+              tokenSymbol: outcome.name,
+              tokenName: `${contract_keys.contract_name} ${outcome.name}`,
+              icon: outcome.icon.replace('https://predictomega.org', ''),
+              mintAddress: outcome.mint_pk,
+            };
 
-          let outcomeTk = {
-            tokenSymbol: outcome.name,
-            tokenName: `${contract_keys.contract_name} ${outcome.name}`,
-            icon: outcome.icon,
-            mintAddress: outcome.mint_pk,
-          };
-
-          list.push(outcomeTk);
-          knownMints.set(outcomeTk.mintAddress, outcomeTk);
+            list.push(outcomeTk);
+            knownMints.set(outcomeTk.mintAddress, outcomeTk);
+          });
         });
-
         let quoteTk = {
           tokenSymbol: "USDC",
           tokenName: "USDC",

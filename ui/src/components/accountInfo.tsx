@@ -4,6 +4,7 @@ import { shortenAddress } from "./../utils/utils";
 import { Identicon } from "./identicon";
 import { useUserAccounts, useMint } from "./../utils/accounts";
 import contract_keys from "../contract_keys.json";
+import { markets } from "../markets";
 
 export const AccountInfo = (props: {}) => {
   const { wallet } = useWallet();
@@ -28,6 +29,24 @@ export const AccountInfo = (props: {}) => {
 
     return 0;
   };
+
+  const outcomes =
+    Object.values(markets).map(m => m.outcomes[0]).concat(
+    Object.values(markets).map(m => m.outcomes[1]));
+  // sort in-place
+  outcomes.sort((a,b) => a.name.localeCompare(b.name));
+
+
+  let userOutcomeBalances = new Map<string, number>();
+  outcomes.forEach(o => {
+    const outcomeAccount = userAccounts?.find(a => a.info.mint.toBase58() === o.mint_pk);
+
+    if (outcomeAccount && mint) {
+      const balance = outcomeAccount.info.amount.toNumber() / Math.pow(10, mint.decimals - 1);
+      if (balance > 0)
+        userOutcomeBalances.set(o.name, balance);
+    }
+  });
 
   const userYesBalance = () => {
     const yesAccount = userAccounts?.find(
@@ -57,10 +76,12 @@ export const AccountInfo = (props: {}) => {
   return (
     <div className="wallet-wrapper">
       <span>
-        {userUiBalance().toFixed(2)} USDC {userYesBalance().toFixed(2)} YES {userNoBalance().toFixed(2)} NO
+        USDC: {userUiBalance().toFixed(2)}
+        {Array.from(userOutcomeBalances.entries()).map(([name, amount]) =>
+          ` ${name}: ${amount.toFixed(2)}`).join('')}
       </span>
       <div className="wallet-key">
-        {shortenAddress(`${wallet.publicKey}`)}
+        {' ' + shortenAddress(`${wallet.publicKey}`)}
         <Identicon
           address={wallet.publicKey.toBase58()}
           style={{ marginLeft: "0.5rem" }}

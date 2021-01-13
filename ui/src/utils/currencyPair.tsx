@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
 import bs58 from "bs58";
 
 import contract_keys from "../contract_keys.json";
+import { markets } from "../markets";
 
 export interface CurrencyContextState {
   mintAddress: string;
@@ -235,8 +236,8 @@ const isValidAddress = (address: string) => {
 };
 
 function getDefaultTokens(tokens: KnownToken[], search: string) {
-  let defaultBase = contract_keys.outcomes[0].name;
-  let defaultQuote = contract_keys.outcomes[1].name;
+  let defaultBase = markets[0].outcomes[0].name;
+  let defaultQuote = markets[1].outcomes[1].name;
 
   const nameToToken = tokens.reduce((map, item) => {
     map.set(item.tokenSymbol, item);

@@ -1,0 +1,23 @@
+{
+  "contract_name": "Buffalo Bills",
+  "details": "None",
+  "omega_contract_pk": "166vqxbrvTsGQA1As4NRgkxtCaf2ai3dvXzjrFKGFEy",
+  "omega_program_id": "9sSiUH8wZ1MCT3HJDYn8vMV57YuHQEXdNjVoncB5z6Cw",
+  "oracle_pk": "AiV4j8BnezLr6xojE2P7DT1cMCQKwybinSYBusoECm9w",
+  "outcomes": [
+    {
+      "icon": "/markets/SUPERBOWL21/buf.png",
+      "mint_pk": "F6aeFzCcoqZx4u7ggonCM5bKpbvD2HvhHmNYhYyGgMrY",
+      "name": "BUF-YES"
+    },
+    {
+      "icon": "/markets/SUPERBOWL21/buf_no.png",
+      "mint_pk": "2cfN1ZS7MBJZeVfixcRYffTH5HUZ8PcPoswDcTUeJuhY",
+      "name": "BUF-NO"
+    }
+  ],
+  "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
+  "quote_vault_pk": "83bbUP2fsdPgtc9MBBQwWU8X9Uy7W3DPaoNYHMunpyta",
+  "signer_nonce": 0,
+  "signer_pk": "6A64XHcqAeKZwJKYvUkCJGaheML1WyKHEYyoD7WeDh84"
+}

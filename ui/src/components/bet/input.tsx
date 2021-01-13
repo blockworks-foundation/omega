@@ -11,6 +11,7 @@ import { PoolInfo, TokenAccount } from "../../models";
 import { getPoolName, getTokenName, isKnownMint } from "../../utils/utils";
 import { useUserAccounts, useMint, useCachedPool } from "../../utils/accounts";
 import { useConnectionConfig } from "../../utils/connection";
+import contract_keys from "../../contract_keys.json";
 
 const { Option } = Select;
 
@@ -58,6 +59,10 @@ export const BetInput = (props: {
     .reduce((map, acc) => {
       const mint = acc.info.mint.toBase58();
       if (isKnownMint(tokenMap, mint)) {
+        return map;
+      }
+
+      if (!(mint === contract_keys.quote_mint_pk)) {
         return map;
       }
 

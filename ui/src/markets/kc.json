@@ -1,0 +1,23 @@
+{
+  "contract_name": "Kansas City Chiefs",
+  "details": "None",
+  "omega_contract_pk": "FgEPtRH7XH8jUcX394QGA4ggJbjy2ii2pPuTCwudmXSn",
+  "omega_program_id": "9sSiUH8wZ1MCT3HJDYn8vMV57YuHQEXdNjVoncB5z6Cw",
+  "oracle_pk": "AiV4j8BnezLr6xojE2P7DT1cMCQKwybinSYBusoECm9w",
+  "outcomes": [
+    {
+      "icon": "/markets/SUPERBOWL21/kc.png",
+      "mint_pk": "DV63zwVsfhkrGBwZBDoZqCTGJUHsz4hYEdfx7DxYGJ2c",
+      "name": "KC-YES"
+    },
+    {
+      "icon": "/markets/SUPERBOWL21/kc_no.png",
+      "mint_pk": "4CpcJvB9Qb4C3SmiVLsqTE1QY3vMNfQ6sPyGwy1yMmd8",
+      "name": "KC-NO"
+    }
+  ],
+  "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
+  "quote_vault_pk": "DvKiKpJGJfXKeUkUqgKNWeQ2pqn5iyjXgFXw1LsjysDW",
+  "signer_nonce": 1,
+  "signer_pk": "GEgT1mcKQRmGyJRnMgTF4jZYpY97WbLPKuJg5u6NJg8M"
+}

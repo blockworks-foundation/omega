@@ -12,12 +12,13 @@ import {TokenInstructions} from '@project-serum/serum';
 import BufferLayout from 'buffer-layout';
 import {AccountLayout} from '@solana/spl-token';
 
-import { Button, Card, Popover, Col, Row } from "antd";
+import { Button, Card, Dropdown, Menu, Select, Popover, Col, Row } from "antd";
 import { NumericInput } from "./numericInput";
 import { Settings } from "./settings";
 import { SettingOutlined } from "@ant-design/icons";
 import { AppBar } from "./appBar";
 import contract_keys from "../contract_keys.json";
+import { markets } from "../markets";
 
 
 import { useMint } from '../utils/accounts';
@@ -34,11 +35,9 @@ const QUOTE_CURRENCY_MINT = new PublicKey(contract_keys.quote_mint_pk);
 
 console.log('QUOTE_CURRENCY', QUOTE_CURRENCY, QUOTE_CURRENCY_MINT.toString());
 
-const CONTRACT_NAME = contract_keys.contract_name;
-const OMEGA_CONTRACT = new PublicKey(contract_keys.omega_contract_pk);
-const OMEGA_QUOTE_VAULT = new PublicKey(contract_keys.quote_vault_pk);
-
-console.log('MARKET', CONTRACT_NAME, OMEGA_QUOTE_VAULT.toString());
+markets.forEach(m => {
+  console.log('MARKET', m.contract_name);
+});
 
 
 /* INSTRUCTIONS
@@ -63,11 +62,11 @@ const marketContractLayout = BufferLayout.struct([
 ]);
 
 
-async function queryMarketContract(conn) {
-  const accountInfo = await conn.getParsedAccountInfo(OMEGA_CONTRACT, 'singleGossip');
+async function queryMarketContract(conn, contract) {
+  const accountInfo = await conn.getParsedAccountInfo(contract, 'singleGossip');
 
   const result = marketContractLayout.decode(Buffer.from(accountInfo.value.data));
-  console.log('QUERY', CONTRACT_NAME, result);
+  console.log('QUERY', contract, result);
   return result;
 };
 
@@ -198,19 +197,20 @@ export const RedeemView = (props) => {
   const { wallet, connected } = useWallet();
   const quoteMint = useMint(contract_keys.quote_mint_pk);
   const [contractData, setContractData] = useState({
-    exp_time: 1612137600 // 02/01/2021 00:00 UTC
+    exp_time: 1612137600, // 02/01/2021 00:00 UTC
+    decided: false
   });
 
-  // TODO: test once we have a demo contract deployed
   useEffect(() => {
-    async function fetchContractData() {
-      let data = await queryMarketContract(connection);
+    async function fetchContractData(market) {
+      console.log('fetchContractData', market);
+      let data = await queryMarketContract(connection, new PublicKey(market.omega_contract_pk));
       let winner = new PublicKey(data.winner);
       let zeroPubkey = new PublicKey(new Uint8Array(32));
       data['decided'] = !winner.equals(zeroPubkey);
       setContractData(data);
     };
-    fetchContractData();
+    fetchContractData(markets[0]);
   }, [connection]);
   useEffect(() => {
     console.log('contract.exp_time', new Date(contractData.exp_time * 1000));
@@ -284,17 +284,16 @@ export const RedeemView = (props) => {
     return parseFloat(amount) * Math.pow(10, quoteMint.decimals);
   }
 
-  async function issueSet(amount) {
+  async function issueSet(market, amount) {
 
     if (!wallet.connected) await wallet.connect();
     console.log('issueSet', amount);
 
     const accounts = await fetchAccounts();
 
-    let omegaSigner = new PublicKey(contract_keys.signer_pk);
     let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
     let outcomePks = [];
-    let outcomeInfos = contract_keys["outcomes"];
+    let outcomeInfos = market["outcomes"];
     let numOutcomes = outcomeInfos.length;
     for (let i = 0; i < numOutcomes; i++) {
       let outcomeMint = new PublicKey(outcomeInfos[i]["mint_pk"]);
@@ -303,8 +302,14 @@ export const RedeemView = (props) => {
       outcomePks.push(userOutcomeWallet);
       console.log(outcomeInfos[i]["name"], outcomeMint, userOutcomeWallet);
     }
-    let issueSetInstruction = IssueSetInstruction(OMEGA_CONTRACT, wallet.publicKey, userQuote, OMEGA_QUOTE_VAULT,
-        omegaSigner, outcomePks, amount);
+    let issueSetInstruction = IssueSetInstruction(
+      new PublicKey(market.omega_contract_pk),
+      wallet.publicKey,
+      userQuote,
+      new PublicKey(market.quote_vault_pk),
+      new PublicKey(market.signer_pk),
+      outcomePks,
+      amount);
     let transaction = new Transaction();
     transaction.add(issueSetInstruction);
 
@@ -312,15 +317,14 @@ export const RedeemView = (props) => {
     console.log('success txid:', txid);
   }
 
-  async function redeemSet(amount) {
+  async function redeemSet(market, amount) {
     if (!wallet.connected) await wallet.connect();
     console.log('redeemSet', amount);
     const accounts = await fetchAccounts();
 
-    let omegaSigner = new PublicKey(contract_keys.signer_pk);
     let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
     let outcomePks = [];
-    let outcomeInfos = contract_keys["outcomes"];
+    let outcomeInfos = market["outcomes"];
     let numOutcomes = outcomeInfos.length;
     for (let i = 0; i < numOutcomes; i++) {
       let outcomeMint = new PublicKey(outcomeInfos[i]["mint_pk"]);
@@ -329,8 +333,14 @@ export const RedeemView = (props) => {
       outcomePks.push(userOutcomeWallet);
       console.log(outcomeInfos[i]["name"], outcomeMint, userOutcomeWallet);
     }
-    let redeemSetInstruction = RedeemSetInstruction(OMEGA_CONTRACT, wallet.publicKey, userQuote, OMEGA_QUOTE_VAULT,
-        omegaSigner, outcomePks, amount);
+    let redeemSetInstruction = RedeemSetInstruction(
+      new PublicKey(market.omega_contract_pk),
+      wallet.publicKey,
+      userQuote,
+      new PublicKey(market.quote_vault_pk),
+      new PublicKey(market.signer_pk),
+      outcomePks,
+      amount);
     let transaction = new Transaction();
     transaction.add(redeemSetInstruction);
 
@@ -338,7 +348,7 @@ export const RedeemView = (props) => {
     console.log('success txid:', txid);
   }
 
-  async function redeemWinner(amount) {
+  async function redeemWinner(market, amount) {
     if (!wallet.connected) await wallet.connect();
     console.log('redeemWinner', amount);
 
@@ -354,11 +364,16 @@ export const RedeemView = (props) => {
 
     let winnerWallet = await userTokenAccount(accounts, winner);
     let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
-    let omegaSigner = new PublicKey(contract_keys.signer_pk);
 
-    let redeemWinnerInstruction = RedeemWinnerInstruction(OMEGA_CONTRACT, wallet.publicKey, userQuote,
-        OMEGA_QUOTE_VAULT, omegaSigner, winner, winnerWallet, amount);
-
+    let redeemWinnerInstruction = RedeemWinnerInstruction(
+      new PublicKey(market.omega_contract_pk),
+      wallet.publicKey,
+      userQuote,
+      new PublicKey(market.quote_vault_pk),
+      new PublicKey(market.signer_pk),
+      winner,
+      winnerWallet,
+      amount);
 
     let transaction = new Transaction();
     transaction.add(redeemWinnerInstruction);
@@ -368,14 +383,29 @@ export const RedeemView = (props) => {
 
   }
 
-
-  const colStyle = { padding: "0.5em", width: 256+128 };
-
+  const colStyle = { padding: "0.5em", width: 512 };
 
   const [winnerAmount, setWinnerAmount] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
   const [issueAmount, setIssueAmount] = useState("");
+  const [winnerMarket, setWinnerMarket] = useState(markets[0]);
+  const [redeemMarket, setRedeemMarket] = useState(markets[0]);
+  const [issueMarket, setIssueMarket] = useState(markets[0]);
 
+  const onSelectWinnerMarket = (val) => {
+    console.log(`onSelectWinnerMarket ${val}`);
+    setWinnerMarket(markets.find(m => m.contract_name === val));
+  };
+
+  const onSelectRedeemMarket = (val) => {
+    console.log(`onSelectRedeemMarket ${val}`);
+    setRedeemMarket(markets.find(m => m.contract_name === val));
+  };
+
+  const onSelectIssueMarket = (val) => {
+    console.log(`onSelectIssueMarket ${val}`);
+    setIssueMarket(markets.find(m => m.contract_name === val));
+  };
 
   return (
     <>
@@ -395,90 +425,102 @@ export const RedeemView = (props) => {
             />
           </Popover>
         }
-      />
-      <Row justify="center">
-        <Col>
-          <div style={colStyle}>
-            <Card>
-              <h2>Redeem Winner</h2>
-              <p>After the oracle has resolved the contract, you may redeem the winning token for equal quantities of USDC.</p>
-              <NumericInput
-                value={winnerAmount}
-                onChange={setWinnerAmount}
-                style={{
-                  "margin-bottom": 10,
-                }}
-                placeholder="0.00"
-                disabled={!contractData.decided}
-              />
+        />
+            <Row justify="center">
+              <div style={colStyle}>
+                <Card>
+                  <h2>Redeem Winner</h2>
+                  <p>After the oracle has resolved the contract, you may redeem the winning token for equal quantities of USDC.</p>
+                  <NumericInput
+                    value={winnerAmount}
+                    onChange={setWinnerAmount}
+                    style={{
+                      "margin-bottom": 10,
+                    }}
+                    placeholder="0.00"
+                  disabled={!contractData.decided}
+                  addonBefore={                  <Select defaultValue={winnerMarket.contract_name} onChange={onSelectWinnerMarket}>
+                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
+                  </Select>
+                  }
+                />
 
-              <Button
-                className="trade-button"
-                type="primary"
-                onClick={connected ?  () => redeemWinner(parseAmount(winnerAmount)) : wallet.connect}
-                style={{ width: "100%" }}
-                disabled={!contractData.decided}
-              >
-                { connected ? "Redeem Tokens" : "Connect Wallet" }
 
-              </Button>
-            </Card>
-          </div>
-        </Col>
-        <Col>
-          <div style={colStyle}>
-            <Card>
-              <h2>Redeem Set</h2>
-              <p>Swap {contract_keys.contract_name} {contract_keys.outcomes[0].name} and {contract_keys.contract_name} {contract_keys.outcomes[1].name} for equal quantities of USDC.</p>
-              <NumericInput
-                value={redeemAmount}
-                onChange={setRedeemAmount}
-                style={{
-                  "margin-bottom": 10,
-                }}
-                addonAfter={`${contract_keys.outcomes[0].name} & ${contract_keys.outcomes[1].name}`}
-                placeholder="0.00"
-              />
-              <Button
-                className="trade-button"
-                type="primary"
-                onClick={connected ?  () => redeemSet(parseAmount(redeemAmount)) : wallet.connect}
-                style={{ width: "100%" }}
-              >
-                { connected ? "Redeem Tokens" : "Connect Wallet" }
 
-              </Button>
-            </Card> 
-          </div>
-        </Col>
-        <Col>
-          <div style={colStyle}>
-            <Card>
-              <h2>Issue Set</h2>
-              <p>Swap USDC for equal quantities of {contract_keys.contract_name} {contract_keys.outcomes[0].name} and {contract_keys.contract_name} {contract_keys.outcomes[1].name} tokens.</p>
-              <NumericInput
-                value={issueAmount}
-                onChange={setIssueAmount}
-                style={{
-                  "margin-bottom": 10,
-                }}
-                addonAfter="USDC"
-                placeholder="0.00"
-              />
-              <Button
-                className="trade-button"
-                type="primary"
-                onClick={connected ? () => issueSet(parseAmount(issueAmount)) : wallet.connect}
-                style={{ width: "100%" }}
-              >
-                { connected ? "Issue Tokens" : "Connect Wallet" }
+                  <Button
+                    className="trade-button"
+                    type="primary"
+                    onClick={connected ?  () => redeemWinner(winnerMarket, parseAmount(winnerAmount)) : wallet.connect}
+                    style={{ width: "100%" }}
+                    disabled={!contractData.decided}
+                  >
+                    { connected ? "Redeem Tokens" : "Connect Wallet" }
 
-              </Button>
+                  </Button>
+                </Card>
+              </div>
+            </Row>
+            <Row justify="center">
+              <div style={colStyle}>
+                <Card>
+                  <h2>Redeem Set</h2>
+                  <p>Swap {redeemMarket.outcomes[0].name} and {redeemMarket.outcomes[1].name} for equal quantities of USDC.</p>
 
-            </Card> 
-          </div>
-        </Col>
-      </Row>
+                  <NumericInput
+                    value={redeemAmount}
+                    onChange={setRedeemAmount}
+                    style={{
+                      "margin-bottom": 10,
+                    }}
+                  addonAfter={`${redeemMarket.outcomes[0].name} & ${redeemMarket.outcomes[1].name}`}
+                  addonBefore={                  <Select defaultValue={redeemMarket.contract_name} onChange={onSelectRedeemMarket}>
+                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
+                  </Select>}
+                    placeholder="0.00"
+                  />
+                  <Button
+                    className="trade-button"
+                    type="primary"
+                    onClick={connected ?  () => redeemSet(redeemMarket, parseAmount(redeemAmount)) : wallet.connect}
+                    style={{ width: "100%" }}
+                  >
+                    { connected ? "Redeem Tokens" : "Connect Wallet" }
+
+                  </Button>
+                </Card> 
+              </div>
+            </Row>
+            <Row justify="center">
+              <div style={colStyle}>
+                <Card>
+                  <h2>Issue Set</h2>
+                  <p>Swap USDC for equal quantities of {issueMarket.contract_name} {issueMarket.outcomes[0].name} and {issueMarket.contract_name} {issueMarket.outcomes[1].name} tokens.</p>
+                  <NumericInput
+                    value={issueAmount}
+                    onChange={setIssueAmount}
+                    style={{
+                      "margin-bottom": 10,
+                    }}
+                                    addonBefore={                  <Select defaultValue={issueMarket.contract_name} onChange={onSelectIssueMarket}>
+                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
+                  </Select>}
+
+                    addonAfter="USDC"
+                    placeholder="0.00"
+                  />
+                  <Button
+                    className="trade-button"
+                    type="primary"
+                    onClick={connected ? () => issueSet(issueMarket, parseAmount(issueAmount)) : wallet.connect}
+                    style={{ width: "100%" }}
+                  >
+                    { connected ? "Issue Tokens" : "Connect Wallet" }
+
+                  </Button>
+
+                </Card>
+              </div>
+            </Row>
     </>
   );
 };

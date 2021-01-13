@@ -6,6 +6,7 @@ import { AppBar } from "./appBar";
 import { CurrencyPairProvider } from "../utils/currencyPair";
 import { SwapView } from "./swap";
 import contract_keys from "../contract_keys.json";
+import { markets } from "../markets";
 
 export const ExchangeView = (props: {}) => {
 
@@ -31,24 +32,28 @@ export const ExchangeView = (props: {}) => {
           </Popover>
         }
       />
-      <Row justify="center">
-        <Col>
-          <div style={colStyle}>
-            <CurrencyPairProvider baseMintAddress={contract_keys.quote_mint_pk}
-                                  quoteMintAddress={contract_keys.outcomes[0].mint_pk} >
-              <SwapView />
-            </CurrencyPairProvider>
-          </div>
-        </Col>
-        <Col>
-          <div style={colStyle}>
-            <CurrencyPairProvider baseMintAddress={contract_keys.quote_mint_pk}
-                                  quoteMintAddress={contract_keys.outcomes[1].mint_pk} >
-              <SwapView />
-            </CurrencyPairProvider>
-          </div>
-        </Col>
-      </Row>
+        { markets.map((market: any) =>
+          <>
+            <Row justify="center">
+            <Col flex={2}>
+              <div style={colStyle}>
+                <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
+                                      quoteMintAddress={market.outcomes[0].mint_pk} >
+                  <SwapView />
+                </CurrencyPairProvider>
+              </div>
+            </Col>
+            <Col flex={2}>
+              <div style={colStyle}>
+                <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
+                                      quoteMintAddress={market.outcomes[1].mint_pk} >
+                  <SwapView />
+                </CurrencyPairProvider>
+              </div>
+            </Col>
+            </Row>
+          </>
+        )}
     </>
   );
 };
