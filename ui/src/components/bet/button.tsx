@@ -72,7 +72,7 @@ const BetModalContent = (props: {
                 }} />
 
 
-        <p>Maximum Profit: {(parseFloat(B.amount) * (1 - slippage)).toFixed(2)} USDC</p>
+        <p>Maximum Profit: {(parseFloat(B.amount) - parseFloat(A.amount)).toFixed(2)} USDC</p>
 
 
 
