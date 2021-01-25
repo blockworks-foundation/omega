@@ -72,12 +72,17 @@ export const CurrencyInput = (props: {
   title?: string;
   onInputChange?: (val: number) => void;
   onMintChange?: (account: string) => void;
+  forceMint?: string;
 }) => {
   const { userAccounts } = useUserAccounts();
   const { pools } = useCachedPool();
   const mint = useMint(props.mint);
 
-  const { tokens, tokenMap } = useConnectionConfig();
+  let { tokens, tokenMap } = useConnectionConfig();
+
+  if (props.forceMint) {
+    tokens = tokens.filter(t => t.mintAddress === props.forceMint);
+  }
 
   const renderPopularTokens = tokens.map((item) => {
     return (

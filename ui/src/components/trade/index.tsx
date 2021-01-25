@@ -121,6 +121,7 @@ export const TradeEntry = () => {
           onMintChange={(item) => {
             A.setMint(item);
           }}
+          forceMint={A.mintAddress}
         />
         <Button type="primary" className="swap-button" onClick={swapAccounts}>
           ⇅
@@ -140,6 +141,7 @@ export const TradeEntry = () => {
           onMintChange={(item) => {
             B.setMint(item);
           }}
+          forceMint={B.mintAddress}
         />
       </div>
       <Button

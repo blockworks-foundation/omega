@@ -554,9 +554,6 @@ export function useMint(key?: string | PublicKey) {
       const event = e;
       if (event.id === id) {
         cache.queryMint(connection, id).then(setMint);
-        if (id === "DV63zwVsfhkrGBwZBDoZqCTGJUHsz4hYEdfx7DxYGJ2c") {
-          console.log()
-        }
       }
     });
     return () => {

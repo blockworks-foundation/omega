@@ -157,6 +157,7 @@ export const AddToLiquidity = () => {
           onMintChange={(item) => {
             A.setMint(item);
           }}
+          forceMint={A.mintAddress}
         />
         <div>+</div>
         <CurrencyInput
@@ -173,6 +174,7 @@ export const AddToLiquidity = () => {
           onMintChange={(item) => {
             B.setMint(item);
           }}
+          forceMint={B.mintAddress}
         />
         {pool && <PoolPrice pool={pool} />}
         <SupplyOverview pool={pool} />
