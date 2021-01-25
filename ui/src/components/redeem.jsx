@@ -24,7 +24,7 @@ import { markets } from "../markets";
 import { useMint } from '../utils/accounts';
 import { useConnection } from '../utils/connection';
 import { useWallet } from '../utils/wallet';
-import {sendTransaction, sendTransaction2} from "../utils/utils";
+import {sendTransaction} from "../utils/utils";
 
 
 const PROGRAM_ID = new PublicKey(contract_keys.omega_program_id);
@@ -239,7 +239,18 @@ export const RedeemView = (props) => {
       console.log('creating new account for', mintPubkey.toString());
       let { transaction, signer, newAccountPubkey } = await createTokenAccountTransaction(mintPubkey);
 
-      let txid = await sendTransaction(transaction, wallet, [signer], connection);
+      let signers = [signer]
+
+      const instrStr = 'create account'
+      let txid = await sendTransaction({
+        transaction,
+        wallet,
+        signers,
+        connection,
+        sendingMessage: `sending ${instrStr}...`,
+        sentMessage: `${instrStr} sent`,
+        successMessage: `${instrStr} success`
+      });
       console.log("txid", txid);
       console.log('pubkey', newAccountPubkey.toString());
 
