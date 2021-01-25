@@ -44,13 +44,16 @@ markets.forEach(m => {
  * define buffer layouts and factory functions
  */
 
-const MAX_OUTCOMES = 2;
+const MAX_OUTCOMES = 8;
 const DETAILS_BUFFER_LEN = 2048;
+
+// TODO fix this layout to be more fully specified
 const marketContractLayout = BufferLayout.struct([
   BufferLayout.nu64('flags'),
   BufferLayout.blob(32, 'oracle'),
   BufferLayout.blob(32, 'quote_mint'),
   BufferLayout.nu64('exp_time'),
+  BufferLayout.nu64('auto_exp_time'),
   BufferLayout.blob(32, 'vault'),
   BufferLayout.blob(32, 'signer_key'),
   BufferLayout.nu64('signer_nonce'),
