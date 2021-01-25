@@ -439,11 +439,7 @@ export const RedeemView = (props) => {
                     }}
                     placeholder="0.00"
                   disabled={!contractData.decided}
-                  addonBefore={                  <Select defaultValue={winnerMarket.contract_name} onChange={onSelectWinnerMarket}>
-                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
-                  </Select>
-                  }
-                />
+                 />
 
 
 
@@ -472,10 +468,7 @@ export const RedeemView = (props) => {
                     style={{
                       "margin-bottom": 10,
                     }}
-                  addonAfter={`${redeemMarket.outcomes[0].name} & ${redeemMarket.outcomes[1].name}`}
-                  addonBefore={                  <Select defaultValue={redeemMarket.contract_name} onChange={onSelectRedeemMarket}>
-                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
-                  </Select>}
+                    addonAfter={`${redeemMarket.outcomes[0].name} & ${redeemMarket.outcomes[1].name}`}
                     placeholder="0.00"
                   />
                   <Button
@@ -501,10 +494,6 @@ export const RedeemView = (props) => {
                     style={{
                       "margin-bottom": 10,
                     }}
-                                    addonBefore={                  <Select defaultValue={issueMarket.contract_name} onChange={onSelectIssueMarket}>
-                    { markets.map(m => <Select.Option value={m.contract_name}>{m.contract_name}</Select.Option>)}
-                  </Select>}
-
                     addonAfter="USDC"
                     placeholder="0.00"
                   />

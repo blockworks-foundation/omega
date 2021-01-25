@@ -126,8 +126,6 @@ export const BetButton = (props: {
     A.setAmount(epsilon.toString());
   }, [A, B, setPoolOperation, setLastTypedAccount]);
 
-  // const history = useHistory();
-
   let odds = "";
   if (B?.amount) {
     odds = (100 * epsilon / parseFloat(B.amount)).toFixed(0);

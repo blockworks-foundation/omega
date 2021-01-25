@@ -12,6 +12,50 @@ import { CurrencyPairProvider } from "../utils/currencyPair";
 import contract_keys from "../contract_keys.json";
 import { markets } from "../markets";
 
+const SBMarketView = (props: {}) => {
+  const colStyle = { padding: "0.5em", width: 256+128+64 };
+  const m = markets[0];
+
+  return (
+    <>
+      <Row justify="center">
+        <Col>
+          <div style={colStyle}>
+            <Card>
+              <p>
+                <img src={m.outcomes[0].icon} alt={m.outcomes[0].name} width="200px" height="200px"/>
+              </p>
+              <h1>Kansas City Chiefs</h1>
+              <p>
+                <CurrencyPairProvider baseMintAddress={m.quote_mint_pk}
+                                      quoteMintAddress={m.outcomes[0].mint_pk} >
+                  <BetButton label="" type="primary" market={m} outcome={m.outcomes[0]} />
+                </CurrencyPairProvider>
+              </p>
+            </Card>
+          </div>
+        </Col>
+        <Col>
+          <div style={colStyle}>
+            <Card>
+              <p>
+                <img src={m.outcomes[1].icon} alt={m.outcomes[1].name} width="200px" height="200px"/>
+              </p>
+              <h1>Tampa Bay Buccaneers</h1>
+              <p>
+                <CurrencyPairProvider baseMintAddress={m.quote_mint_pk}
+                                      quoteMintAddress={m.outcomes[1].mint_pk} >
+                  <BetButton label="" type="primary" market={m} outcome={m.outcomes[1]} />
+                </CurrencyPairProvider>
+              </p>
+            </Card>
+          </div>
+        </Col>
+      </Row>
+    </>);
+};
+
+
 const MarketsView = (props: {}) => {
   const colStyle = { padding: "0.5em", width: 256+64 };
 
@@ -85,7 +129,7 @@ export const BetView = (props: {}) => {
           </Row>
         </div>
       </Card>
-      <MarketsView></MarketsView>
+      <SBMarketView />
     </>
   );
 };

@@ -8,12 +8,12 @@
     {
       "icon": "/markets/SUPERBOWL21/kc.png",
       "mint_pk": "CcWQLmhjpvCWRg99Bn4vGDXppwjcFW13H74BSKQzYGK",
-      "name": "KC-YES"
+      "name": "KC"
     },
     {
-      "icon": "/markets/SUPERBOWL21/kc_no.png",
+      "icon": "/markets/SUPERBOWL21/tb.png",
       "mint_pk": "B4rrr2YNvnyTEDSYHTRdFLzMBBDgMyU9awkncnMybhSP",
-      "name": "KC-NO"
+      "name": "TB"
     }
   ],
   "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
