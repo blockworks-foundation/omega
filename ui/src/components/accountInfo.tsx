@@ -42,7 +42,7 @@ export const AccountInfo = (props: {}) => {
     const outcomeAccount = userAccounts?.find(a => a.info.mint.toBase58() === o.mint_pk);
 
     if (outcomeAccount && mint) {
-      const balance = outcomeAccount.info.amount.toNumber() / Math.pow(10, mint.decimals - 1);
+      const balance = outcomeAccount.info.amount.toNumber() / Math.pow(10, mint.decimals);
       if (balance > 0)
         userOutcomeBalances.set(o.name, balance);
     }

@@ -418,7 +418,7 @@ export const usePools = () => {
             if (obj.data.length === AccountLayout.span) {
               return cache.addAccount(pubKey, obj);
             } else if (obj.data.length === MintLayout.span) {
-              return cache.addMint(pubKey, obj);
+              // return cache.addMint(pubKey, obj);
             }
 
             return obj;

@@ -48,7 +48,6 @@ export const TradeEntry = () => {
   } = useCurrencyPairState();
   const pool = usePoolForBasket([A?.mintAddress, B?.mintAddress]);
 
-  console.log('SWAP pool', pool);
   const { slippage } = useSlippageConfig();
   const { tokenMap } = useConnectionConfig();
 

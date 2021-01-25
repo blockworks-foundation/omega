@@ -42,7 +42,7 @@ Significant contributions to the source code may be compensated with a grant fro
 ### setup testing
 ```
 # Get solana tools
-VERSION=v1.4.22
+VERSION=v1.5.4
 sh -c "$(curl -sSfL https://release.solana.com/$VERSION/install)"
 git clone https://github.com/solana-labs/solana.git
 cd solana

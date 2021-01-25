@@ -123,8 +123,8 @@ export function ConnectionProvider({ children = undefined as any }) {
 
         console.log('knownMints', knownMints);
 
-        setTokenMap(knownMints);
-        setTokens(list);
+        // setTokenMap(knownMints);
+        // setTokens(list);
       });
   }, [env]);
 

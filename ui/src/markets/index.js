@@ -4,8 +4,5 @@ import kc from "./kc.json";
 import tb from "./tb.json";
 
 export const markets = [
-  kc,
-  gb,
-  buf,
-  tb
+  kc
 ];

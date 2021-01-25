@@ -47,6 +47,7 @@ const CurrencyPairContext = React.createContext<CurrencyPairContextState | null>
 );
 
 export const convertAmount = (amount: string, mint?: MintInfo) => {
+
   return parseFloat(amount) * Math.pow(10, mint?.decimals || 0);
 };
 
@@ -67,7 +68,7 @@ export const useCurrencyLeg = (defaultMint?: string) => {
       icon: getTokenIcon(tokenMap, mintAddress),
       setAmount: setAmount,
       setMint: setMintAddress,
-      convertAmount: () => convertAmount(amount, mint),
+      convertAmount: () => (convertAmount(amount, mint)),
       sufficientBalance: () =>
         account !== undefined && convert(account, mint) >= parseFloat(amount),
     }),
@@ -79,6 +80,7 @@ export function CurrencyPairProvider({
     baseMintAddress = "" as string,
     quoteMintAddress = "" as string,
     children = null as any }) {
+
   const connection = useConnection();
   const { tokens } = useConnectionConfig();
 
@@ -180,7 +182,6 @@ export function CurrencyPairProvider({
         poolOperation
       );
 
-      console.log('calculateDependent', amount, result, independent);
       if (typeof result === "string") {
         setDependent(result);
       } else if (result !== undefined && Number.isFinite(result)) {
@@ -223,6 +224,7 @@ export function CurrencyPairProvider({
 
 export const useCurrencyPairState = () => {
   const context = useContext(CurrencyPairContext);
+
   return context as CurrencyPairContextState;
 };
 

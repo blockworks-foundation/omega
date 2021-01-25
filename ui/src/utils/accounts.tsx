@@ -216,6 +216,7 @@ export const cache = {
     }
 
     const address = id.toBase58();
+
     let mint = mintCache.get(address);
     if (mint) {
       return mint;
@@ -223,11 +224,13 @@ export const cache = {
 
     let query = pendingMintCalls.get(address);
     if (query) {
+
       return query;
     }
 
     query = getMintInfo(connection, id).then((data) => {
       pendingAccountCalls.delete(address);
+
       mintCache.set(address, data);
       return data;
     }) as Promise<MintInfo>;
@@ -551,6 +554,9 @@ export function useMint(key?: string | PublicKey) {
       const event = e;
       if (event.id === id) {
         cache.queryMint(connection, id).then(setMint);
+        if (id === "DV63zwVsfhkrGBwZBDoZqCTGJUHsz4hYEdfx7DxYGJ2c") {
+          console.log()
+        }
       }
     });
     return () => {
