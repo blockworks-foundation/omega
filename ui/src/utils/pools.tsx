@@ -531,7 +531,7 @@ async function getMultipleAccounts(
 
   for (let i = 0; i < resp.result.value.length; i++) {
     if (resp.result.value[i] === null) {
-      console.log(resp.result.value[i], publicKeyStrs[i])
+      console.log("NULL ACCOUNT", resp.result.value[i], publicKeyStrs[i])
     } else {
       filtPubkeys.push(publicKeyStrs[i])
       filtData.push(resp.result.value[i])
