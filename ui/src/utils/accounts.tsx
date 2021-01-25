@@ -190,7 +190,6 @@ export const cache = {
   addAccount: (pubKey: PublicKey, obj: AccountInfo<Buffer>) => {
     const account = tokenAccountFactory(pubKey, obj);
     accountsCache.set(account.pubkey.toBase58(), account);
-    console.log('cache account', account.pubkey.toBase58(), account);
 
     return account;
   },
@@ -253,7 +252,6 @@ export const cache = {
   addMint: (pubKey: PublicKey, obj: AccountInfo<Buffer>) => {
     const mint = deserializeMint(obj.data);
     mintCache.set(pubKey.toBase58(), mint);
-    console.log('cache mint', pubKey.toBase58(), mint);
     return mint;
   },
 };
