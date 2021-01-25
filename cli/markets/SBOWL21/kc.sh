@@ -16,7 +16,7 @@ cargo run -- "$CLUSTER" init-omega-contract \
 --outcome-names $OUTCOME_NAMES \
 --contract-name "$CONTRACT_NAME" \
 --details "$DETAILS" \
---exp-time "2021-02-09 00:00:00" \
+--exp-time "2021-02-08 08:00:00" \
 --auto-exp-time "2021-07-01 00:00:00" \
 --contract-keys-paths $CONTRACT_KEYS_PATHS \
 --icon-urls $ICON_URLS
