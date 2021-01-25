@@ -8,6 +8,7 @@
     "@solana/spl-token": "^0.0.13",
     "@solana/spl-token-swap": "^0.0.4",
     "@solana/web3.js": "^0.90.1",
+    "@project-serum/sol-wallet-adapter": "^0.1.4",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -69,7 +70,6 @@
     "@types/react-dom": "^16.9.8",
     "arweave-deploy": "^1.9.1",
     "gh-pages": "^3.1.0",
-    "prettier": "^2.1.2",
-    "@project-serum/sol-wallet-adapter": "^0.1.4"
+    "prettier": "^2.1.2"
   }
 }

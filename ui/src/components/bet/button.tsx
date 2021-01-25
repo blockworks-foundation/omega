@@ -9,6 +9,8 @@ import { swap, usePoolForBasket, PoolOperation } from "../../utils/pools";
 import { useWallet } from "../../utils/wallet";
 
 import { BetInput } from "./input";
+import {SWAP_POOL_OWNERS} from "../../utils/ids";
+import {precacheUserTokenAccounts} from "../../utils/accounts";
 
 const BetModalContent = (props: {
   market: { quote_mint_pk: string },
@@ -45,6 +47,9 @@ const BetModalContent = (props: {
         ];
 
         await swap(connection, wallet, components, slippage, pool);
+        SWAP_POOL_OWNERS.forEach(o => {
+          precacheUserTokenAccounts(connection, o);
+        })
       } catch {
         notify({
           description:

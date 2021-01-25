@@ -13,11 +13,11 @@ import {
   cache,
   getCachedAccount,
   useUserAccounts,
-  useCachedPool,
+  useCachedPool, precacheUserTokenAccounts,
 } from "./accounts";
 import {
   programIds,
-  SWAP_HOST_FEE_ADDRESS,
+  SWAP_HOST_FEE_ADDRESS, SWAP_POOL_OWNERS,
   SWAP_PROGRAM_OWNER_FEE_ADDRESS,
   WRAPPED_SOL_MINT,
 } from "./ids";
@@ -298,7 +298,9 @@ export const swap = async (
     sentMessage: `${instrStr} sent`,
     successMessage: `${instrStr} success`
   });
-
+  SWAP_POOL_OWNERS.forEach(o => {
+    precacheUserTokenAccounts(connection, o);
+  });
   notify({
     message: "Trade executed.",
     type: "success",
@@ -439,23 +441,6 @@ export const usePools = () => {
           cache.addMint(pubKey, ka.accountInfo)
         }
       }
-
-      //
-      // await getMultipleAccounts(connection, toQuery, "single").then(
-      //   ({ keys, array }) => {
-      //     return array.map((obj, index) => {
-      //       const pubKey = new PublicKey(keys[index]);
-      //       if (obj.data.length === AccountLayout.span) {
-      //         return cache.addAccount(pubKey, obj);
-      //       } else if (obj.data.length === MintLayout.span) {
-      //         // return cache.addMint(pubKey, obj);
-      //       }
-      //
-      //       return obj;
-      //     }) as any[];
-      //   }
-      // );
-
       return poolsArray;
     };
 

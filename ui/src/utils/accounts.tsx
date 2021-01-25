@@ -334,7 +334,7 @@ const UseNativeAccount = () => {
 };
 
 const PRECACHED_OWNERS = new Set<string>();
-const precacheUserTokenAccounts = async (
+export const precacheUserTokenAccounts = async (
   connection: Connection,
   owner?: PublicKey
 ) => {
@@ -379,19 +379,23 @@ const precacheUserTokenAccounts = async (
         acc.pubkey,
         (accInfo, ctx) => {
           console.log('onAccountChange', id, accInfo);
+          if (accInfo.data.length === AccountLayout.span) {
+            const data = deserializeAccount(accInfo.data);
+            // TODO: move to web3.js for decoding on the client side... maybe with callback
+            const details = {
+              pubkey: acc.pubkey,
+              account: {
+                ...accInfo,
+              },
+              info: data,
+            } as TokenAccount;
 
-          const data = deserializeAccount(accInfo.data);
-          // TODO: move to web3.js for decoding on the client side... maybe with callback
-          const details = {
-            pubkey: acc.pubkey,
-            account: {
-              ...accInfo,
-            },
-            info: data,
-          } as TokenAccount;
+            accountsCache.set(id, details);
+            accountEmitter.raiseAccountUpdated(id);
+          } else {
+            console.log(id, "length of account data", accInfo.data.length, "does not match AccountLayout length", AccountLayout.span)
+          }
 
-          accountsCache.set(id, details);
-          accountEmitter.raiseAccountUpdated(id);
 
         }, 'single');
     });

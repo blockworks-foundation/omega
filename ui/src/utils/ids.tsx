@@ -11,8 +11,8 @@ let SWAP_PROGRAM_ID: PublicKey;
 let SWAP_PROGRAM_LEGACY_IDS: PublicKey[];
 
 export const SWAP_POOL_OWNERS = [
-  new PublicKey("9PPWSjY23rrzhkrT5LorPxowAVgEuJETEQqsc2ZzNaYs"),
-  new PublicKey("3CEUsYhLqQDFqNvBANFS3QR4kSGgv4ZvKcHQtzx8TdFi"),
+  new PublicKey("5qcYxqU8taz3MbzUgqCddKpnnDA1tWDmkAxnAEYJ715W"),
+  new PublicKey("D21rVyfH17xAWG2E2mrq4D3A7Qe4sKRy8XhadBZjhKcP"),
 ];
 
 export const SWAP_PROGRAM_OWNER_FEE_ADDRESS = new PublicKey(
