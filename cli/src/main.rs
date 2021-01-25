@@ -40,7 +40,7 @@ pub enum Command {
         #[clap(long, short)]
         num_outcomes: usize,
         #[clap(long, short)]
-        contract_keys_path: String,
+        contract_keys_paths: Vec<String>,
         #[clap(long)]
         contract_name: String,
         #[clap(long)]
@@ -109,7 +109,7 @@ pub fn start(opts: Opts) -> Result<()> {
             oracle,
             quote_mint,
             num_outcomes,
-            contract_keys_path,
+            contract_keys_paths,
             contract_name,
             outcome_names,
             details,
@@ -232,9 +232,11 @@ pub fn start(opts: Opts) -> Result<()> {
                 "details": details
             });
 
-            let f = File::create(&contract_keys_path).unwrap();
-            serde_json::to_writer_pretty(&f, &contract_keys).unwrap();
-            println!("contract keys were written into: {}", contract_keys_path);
+            for contract_keys_path in contract_keys_paths.iter() {
+                let f = File::create(contract_keys_path).unwrap();
+                serde_json::to_writer_pretty(&f, &contract_keys).unwrap();
+                println!("contract keys were written into: {}", contract_keys_path);
+            }
         }
         Command::IssueSet { .. } => {
             println!("IssueSet");

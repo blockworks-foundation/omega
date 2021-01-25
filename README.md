@@ -65,7 +65,7 @@ solana-keygen new
 cd ~/omega/program
 cargo build-bpf
 
-OMEGA_PROGRAM_ID="$(solana deploy target/deploy/omega.so | jq .programId -r)"
+OMEGA_PROGRAM_ID="$(solana program deploy target/deploy/omega.so | jq .programId -r)"
 cd ../cli
 KEYPAIR=~/.config/solana/id.json
 MY_ADDR="$(solana address)"

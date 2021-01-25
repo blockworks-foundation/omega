@@ -1,23 +1,23 @@
 {
-  "contract_name": "SBOWL-KC",
+  "contract_name": "SUPERBOWL21",
   "details": "None",
-  "omega_contract_pk": "4n3HjJT4NgzANhKBN7qXmUmScoYr8YNFbg4zYGqgcJii",
+  "omega_contract_pk": "25ygWuo7MLbAbRpGJe5bCUoEq7z5jWyxKxbnBdX3Agzm",
   "omega_program_id": "E9LcZwiT8f9REGn4wmastVb2rJHCMfRSSKUQzgiUEdJT",
   "oracle_pk": "FJpmfVUmd75kVieMjBLixdk5611xvXVUNadhcSbhE4Hm",
   "outcomes": [
     {
-      "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_29b55b5a-6faf-4041-8b21-ab27421d0ade.png",
-      "mint_pk": "5yL2q9UuJJG5orMpiRF4yErW3rYXHZyqyiSvLrqsjRn1",
-      "name": "KC-YES"
+      "icon": "/markets/SUPERBOWL21/kc.png",
+      "mint_pk": "DPRnSTdaEuMZ3h3UaNbmfKJDVua8xoao3SG3BirmdhVX",
+      "name": "KC"
     },
     {
-      "icon": "https://az620379.vo.msecnd.net/images/Contracts/small_77aea45d-8c93-46d6-b338-43a6af0ba8e1.png",
-      "mint_pk": "AkkVq1Xrn6iBkeyEoRTVf1hhn8TyUXU8jHALEfCgQZPQ",
-      "name": "KC-NO"
+      "icon": "/markets/SUPERBOWL21/tb.png",
+      "mint_pk": "4Ay7M7UhSmCm3sf51oKsuim64gEbgxpx6zADdexdBixK",
+      "name": "TB"
     }
   ],
   "quote_mint_pk": "Fq939Y5hycK62ZGwBjftLY2VyxqAQ8f1MxRqBMdAaBS7",
-  "quote_vault_pk": "AedzUhJexZUthw6z2s4xQLParSp77tE7Hd8wy4kzLVpm",
-  "signer_nonce": 0,
-  "signer_pk": "8SiSnPrerKHECAHtVXbWPVnqQFJbnJwb8kJfeQvNNQzo"
+  "quote_vault_pk": "751voHqX9Uh8KX5JJnLV6AScRwDJT6pszccxZRPAVsQa",
+  "signer_nonce": 1,
+  "signer_pk": "HSNmprU1uYnnwEgp1Yt7qNPk3qEdkJ1qESDsbD5NyivL"
 }

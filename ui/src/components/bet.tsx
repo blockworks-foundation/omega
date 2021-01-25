@@ -9,7 +9,6 @@ import "./bet/bet.less";
 import "./trade/trade.less";
 
 import { CurrencyPairProvider } from "../utils/currencyPair";
-import contract_keys from "../contract_keys.json";
 import { markets } from "../markets";
 
 const SBMarketView = (props: {}) => {
@@ -122,7 +121,7 @@ export const BetView = (props: {}) => {
           <Row justify="center">
             <Col style={{ width: 256+128+64+64+128+32 }}>
               <Divider />
-              <p>The winner will be resolved by February 8th 08:00 AM UTC according to the results of the championship game. Winning tokens can be redeemed from then until March 8th 08:00 AM UTC.</p>
+              <p>The winner will be resolved by February 8th 08:00 AM UTC according to the results of the 55th Super Bowl. If neither the Kansas City Chiefs nor the Tampa Bay Buccaneers are the official winners by July 1st 00:00 UTC, both tokens may be redeemed for 0.5 USDC each. Users will have a month from the end of the Super Bowl to redeem their winning tokens via predictomega.org. </p>
               <Divider />
               <p><b>Disclaimer:</b> Trading on Omega is not available in the U.S.A, E.U. or other prohibited jurisdictions. If you are located in, incorporated or otherwise established in, or a resident of the United States of America or any nation part of the European Union, you are not permitted to trade on Omega.</p>
             </Col>
