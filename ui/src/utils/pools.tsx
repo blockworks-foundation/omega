@@ -415,10 +415,11 @@ export const usePools = () => {
         ({ keys, array }) => {
           return array.map((obj, index) => {
             const pubKey = new PublicKey(keys[index]);
+            console.log(pubKey.toBase58(), obj.data.length, index, index%6);
             if (obj.data.length === AccountLayout.span) {
               return cache.addAccount(pubKey, obj);
             } else if (obj.data.length === MintLayout.span) {
-              // return cache.addMint(pubKey, obj);
+              return cache.addMint(pubKey, obj);
             }
 
             return obj;

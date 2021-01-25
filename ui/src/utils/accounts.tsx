@@ -190,6 +190,8 @@ export const cache = {
   addAccount: (pubKey: PublicKey, obj: AccountInfo<Buffer>) => {
     const account = tokenAccountFactory(pubKey, obj);
     accountsCache.set(account.pubkey.toBase58(), account);
+    console.log('cache account', account.pubkey.toBase58(), account);
+
     return account;
   },
   deleteAccount: (pubkey: PublicKey) => {
@@ -251,6 +253,7 @@ export const cache = {
   addMint: (pubKey: PublicKey, obj: AccountInfo<Buffer>) => {
     const mint = deserializeMint(obj.data);
     mintCache.set(pubKey.toBase58(), mint);
+    console.log('cache mint', pubKey.toBase58(), mint);
     return mint;
   },
 };
@@ -485,9 +488,9 @@ export const getMultipleAccounts = async (
   commitment: string
 ) => {
   const result = await Promise.all(
-    chunks(keys, 99).map((chunk) =>
-      getMultipleAccountsCore(connection, chunk, commitment)
-    )
+    [
+      getMultipleAccountsCore(connection, keys, commitment)
+    ]
   );
 
   const array = result
