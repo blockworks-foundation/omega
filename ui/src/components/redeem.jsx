@@ -24,6 +24,7 @@ import { markets } from "../markets";
 import { useMint } from '../utils/accounts';
 import { useConnection } from '../utils/connection';
 import { useWallet } from '../utils/wallet';
+import {sendTransaction, sendTransaction2} from "../utils/utils";
 
 
 const PROGRAM_ID = new PublicKey(contract_keys.omega_program_id);
@@ -153,44 +154,6 @@ function RedeemWinnerInstruction(omegaContract, user, userQuote, vault, omegaSig
   return new TransactionInstruction({keys: keys, programId: PROGRAM_ID, data: data});
 }
 
-/* utils */
-async function signTransaction(
-    transaction,
-    wallet,
-    signers,
-    connection
-) {
-  transaction.recentBlockhash = (await connection.getRecentBlockhash('max')).blockhash;
-  transaction.setSigners(wallet.publicKey, ...signers.map((s) => s.publicKey));
-  if (signers.length > 0) {
-    transaction.partialSign(...signers);
-  }
-  let res = await wallet.signTransaction(transaction);
-  return res;
-}
-
-async function sendTransaction(
-    transaction,
-    wallet,
-    signers,
-    connection
-) {
-
-  const signedTransaction = await signTransaction(transaction, wallet, signers, connection);
-  return await sendSignedTransaction(signedTransaction, connection);
-}
-
-const getUnixTs = () => {
-  return new Date().getTime() / 1000;
-};
-
-async function sendSignedTransaction(
-    signedTransaction,
-    connection
-) {
-  const rawTransaction = signedTransaction.serialize();
-  return await sendAndConfirmRawTransaction(connection, rawTransaction, {skipPreflight: true, commitment: "singleGossip"})
-}
 
 
 export const RedeemView = (props) => {
@@ -211,7 +174,7 @@ export const RedeemView = (props) => {
       let zeroPubkey = new PublicKey(new Uint8Array(32));
       data['decided'] = !winner.equals(zeroPubkey);
       setContractData(data);
-    };
+    }
     fetchContractData(markets[0]);
   }, [connection]);
 
@@ -317,7 +280,15 @@ export const RedeemView = (props) => {
     let transaction = new Transaction();
     transaction.add(issueSetInstruction);
 
-    let txid = await sendTransaction(transaction, wallet, [], connection);
+    let txid = await sendTransaction({
+      transaction,
+      wallet,
+      signers: [],
+      connection,
+      sendingMessage: 'sending IssueSetInstruction...',
+      sentMessage: 'IssueSetInstruction sent',
+      successMessage: 'IssueSetInstruction success'
+    });
     console.log('success txid:', txid);
   }
 
@@ -348,7 +319,15 @@ export const RedeemView = (props) => {
     let transaction = new Transaction();
     transaction.add(redeemSetInstruction);
 
-    let txid = await sendTransaction(transaction, wallet, [], connection);
+    let txid = await sendTransaction({
+      transaction,
+      wallet,
+      signers: [],
+      connection,
+      sendingMessage: 'sending RedeemSetInstruction...',
+      sentMessage: 'RedeemSetInstruction sent',
+      successMessage: 'RedeemSetInstruction success'
+    });
     console.log('success txid:', txid);
   }
 
@@ -382,9 +361,17 @@ export const RedeemView = (props) => {
     let transaction = new Transaction();
     transaction.add(redeemWinnerInstruction);
 
-    let txid = await sendTransaction(transaction, wallet, [], connection);
-    console.log('success txid:', txid);
+    let txid = await sendTransaction({
+      transaction,
+      wallet,
+      signers: [],
+      connection,
+      sendingMessage: 'sending RedeemWinnerInstruction...',
+      sentMessage: 'RedeemWinnerInstruction sent',
+      successMessage: 'RedeemWinnerInstruction success'
+    });
 
+    console.log('success txid:', txid);
   }
 
   const colStyle = { padding: "0.5em", width: 512 };

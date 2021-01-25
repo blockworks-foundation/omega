@@ -2,10 +2,10 @@ import {
   Account, AccountInfo,
   Connection,
   PublicKey,
-  SystemProgram,
+  SystemProgram, Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { sendTransaction, useConnection } from "./connection";
+import { useConnection } from "./connection";
 import { useEffect, useMemo, useState } from "react";
 import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
 import { notify } from "./notifications";
@@ -33,6 +33,7 @@ import {
   swapInstruction,
   PoolConfig,
 } from "./../models";
+import {sendTransaction} from "./utils";
 
 const LIQUIDITY_TOKEN_PRECISION = 8;
 
@@ -148,12 +149,21 @@ export const removeLiquidity = async (
     );
   }
 
-  let tx = await sendTransaction(
-    connection,
+  const transaction = new Transaction()
+  instructions.concat(cleanupInstructions).forEach(
+    (i) => (transaction.add(i))
+  )
+
+  const instrStr = 'remove liquidity transaction'
+  let tx = await sendTransaction({
+    transaction,
     wallet,
-    instructions.concat(cleanupInstructions),
-    signers
-  );
+    signers,
+    connection,
+    sendingMessage: `sending ${instrStr}...`,
+    sentMessage: `${instrStr} sent`,
+    successMessage: `${instrStr} success`
+  });
 
   if(deleteAccount) {
     cache.deleteAccount(account.pubkey);
@@ -273,12 +283,21 @@ export const swap = async (
     )
   );
 
-  let tx = await sendTransaction(
-    connection,
+  const transaction = new Transaction()
+  instructions.concat(cleanupInstructions).forEach(
+    (i) => (transaction.add(i))
+  )
+
+  const instrStr = 'swap transaction'
+  let tx = await sendTransaction({
+    transaction,
     wallet,
-    instructions.concat(cleanupInstructions),
-    signers
-  );
+    signers,
+    connection,
+    sendingMessage: `sending ${instrStr}...`,
+    sentMessage: `${instrStr} sent`,
+    successMessage: `${instrStr} success`
+  });
 
   notify({
     message: "Trade executed.",
@@ -740,12 +759,21 @@ async function _addLiquidityExistingPool(
     )
   );
 
-  let tx = await sendTransaction(
-    connection,
+  const transaction = new Transaction()
+  instructions.concat(cleanupInstructions).forEach(
+    (i) => (transaction.add(i))
+  )
+
+  const instrStr = 'add liquidity transaction'
+  let tx = await sendTransaction({
+    transaction,
     wallet,
-    instructions.concat(cleanupInstructions),
-    signers
-  );
+    signers,
+    connection,
+    sendingMessage: `sending ${instrStr}...`,
+    sentMessage: `${instrStr} sent`,
+    successMessage: `${instrStr} success`
+  });
 
   notify({
     message: "Pool Funded. Happy trading.",
@@ -1028,14 +1056,29 @@ async function _addLiquidityNewPool(
   console.log('here0', SWAP_PROGRAM_OWNER_FEE_ADDRESS.toString(), wallet.publicKey.toString());
 
   // create all accounts in one transaction
-  let tx = await sendTransaction(connection, wallet, instructions, [
+  signers =  [
     liquidityTokenAccount,
     depositorAccount,
     feeAccount,
     ...holdingAccounts,
     ...signers,
-  ]);
+  ]
 
+  let transaction = new Transaction()
+  instructions.concat(cleanupInstructions).forEach(
+    (i) => (transaction.add(i))
+  )
+
+  let instrStr = 'create pool transaction'
+  let tx: string = await sendTransaction({
+    transaction,
+    wallet,
+    signers,
+    connection,
+    sendingMessage: `sending ${instrStr}...`,
+    sentMessage: `${instrStr} sent`,
+    successMessage: `${instrStr} success`
+  });
   notify({
     message: "Accounts created",
     description: `Transaction ${tx}`,
@@ -1115,12 +1158,22 @@ async function _addLiquidityNewPool(
 
   // All instructions didn't fit in single transaction
   // initialize and provide inital liquidity to swap in 2nd (this prevents loss of funds)
-  tx = await sendTransaction(
-    connection,
+  signers = [tokenSwapAccount, ...signers]
+  transaction = new Transaction()
+  instructions.concat(cleanupInstructions).forEach(
+    (i) => (transaction.add(i))
+  )
+
+  instrStr = 'add liquidity transaction'
+  tx = await sendTransaction({
+    transaction,
     wallet,
-    instructions.concat(cleanupInstructions),
-    [tokenSwapAccount, ...signers]
-  );
+    signers,
+    connection,
+    sendingMessage: `sending ${instrStr}...`,
+    sentMessage: `${instrStr} sent`,
+    successMessage: `${instrStr} success`
+  });
 
   notify({
     message: "Pool Funded. Happy trading.",

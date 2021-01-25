@@ -40,7 +40,7 @@ export interface MarketsContextState {
 }
 
 const INITAL_LIQUIDITY_DATE = new Date("2020-10-27");
-const REFRESH_INTERVAL = 5_000;
+const REFRESH_INTERVAL = 30_000;
 
 const BONFIDA_POOL_INTERVAL = 30 * 60_000; // 30 min
 
