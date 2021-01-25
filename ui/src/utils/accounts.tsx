@@ -338,9 +338,12 @@ const precacheUserTokenAccounts = async (
   connection: Connection,
   owner?: PublicKey
 ) => {
+
   if (!owner) {
     return;
   }
+
+  console.log('precache', owner.toBase58());
 
   // used for filtering account updates over websocket
   PRECACHED_OWNERS.add(owner.toBase58());
@@ -349,6 +352,7 @@ const precacheUserTokenAccounts = async (
   const accounts = await connection.getTokenAccountsByOwner(owner, {
     programId: programIds().token,
   });
+
   accounts.value
     .map((info) => {
       const data = deserializeAccount(info.account.data);
@@ -367,6 +371,29 @@ const precacheUserTokenAccounts = async (
     })
     .forEach((acc) => {
       accountsCache.set(acc.pubkey.toBase58(), acc);
+
+      const id = acc.pubkey.toBase58();
+      console.log('listening for changes to' , id);
+
+      connection.onAccountChange(
+        acc.pubkey,
+        (accInfo, ctx) => {
+          console.log('onAccountChange', id, accInfo);
+
+          const data = deserializeAccount(accInfo.data);
+          // TODO: move to web3.js for decoding on the client side... maybe with callback
+          const details = {
+            pubkey: acc.pubkey,
+            account: {
+              ...accInfo,
+            },
+            info: data,
+          } as TokenAccount;
+
+          accountsCache.set(id, details);
+          accountEmitter.raiseAccountUpdated(id);
+
+        }, 'single');
     });
 };
 
@@ -410,6 +437,9 @@ export function AccountsProvider({ children = null as any }) {
         setTokenAccounts(selectUserAccounts());
       })
 
+      console.log('program', programIds().token.toBase58());
+      console.log('token accounts', selectUserAccounts().map(ta => ta.pubkey.toBase58()));
+
       // This can return different types of accounts: token-account, mint, multisig
       // TODO: web3.js expose ability to filter. discuss filter syntax
       const tokenSubID = connection.onProgramAccountChange(
@@ -434,6 +464,7 @@ export function AccountsProvider({ children = null as any }) {
               accountsCache.has(id)
             ) {
               accountsCache.set(id, details);
+              console.log('onProgramAccountChange', id, details.info.owner.toBase58(), info.accountInfo.data.length, info);
               accountEmitter.raiseAccountUpdated(id);
             }
           } else if (info.accountInfo.data.length === MintLayout.span) {
