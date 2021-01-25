@@ -268,7 +268,7 @@ export const getCachedAccount = (
   }
 };
 
-function tokenAccountFactory(pubKey: PublicKey, info: AccountInfo<Buffer>) {
+export function tokenAccountFactory(pubKey: PublicKey, info: AccountInfo<Buffer>) {
   const buffer = Buffer.from(info.data);
 
   const data = deserializeAccount(buffer);

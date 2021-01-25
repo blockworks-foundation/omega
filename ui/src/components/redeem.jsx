@@ -48,7 +48,7 @@ const MAX_OUTCOMES = 8;
 const DETAILS_BUFFER_LEN = 2048;
 
 // TODO fix this layout to be more fully specified
-const marketContractLayout = BufferLayout.struct([
+const OMEGA_CONTRACT_LAYOUT = BufferLayout.struct([
   BufferLayout.nu64('flags'),
   BufferLayout.blob(32, 'oracle'),
   BufferLayout.blob(32, 'quote_mint'),
@@ -68,7 +68,7 @@ const marketContractLayout = BufferLayout.struct([
 async function queryMarketContract(conn, contract) {
   const accountInfo = await conn.getParsedAccountInfo(contract, 'singleGossip');
 
-  const result = marketContractLayout.decode(Buffer.from(accountInfo.value.data));
+  const result = OMEGA_CONTRACT_LAYOUT.decode(Buffer.from(accountInfo.value.data));
   console.log('QUERY', contract, result);
   return result;
 };
@@ -215,6 +215,8 @@ export const RedeemView = (props) => {
     };
     fetchContractData(markets[0]);
   }, [connection]);
+
+
   useEffect(() => {
     console.log('contract.exp_time', new Date(contractData.exp_time * 1000));
     console.log('contract.decided', contractData.decided);

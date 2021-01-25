@@ -48,7 +48,6 @@ pub struct OmegaContract {
     pub winner: Pubkey,  // mint address of winning token. Will be 0 if not yet resolved
     pub outcomes: [Pubkey; MAX_OUTCOMES],
     pub num_outcomes: usize,
-
     pub details: [u8; DETAILS_BUFFER_LEN]  // utf-8 encoded string (compressed?) of details about how to resolve contract
 }
 

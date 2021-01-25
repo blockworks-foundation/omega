@@ -1,5 +1,5 @@
 import {
-  Account,
+  Account, AccountInfo,
   Connection,
   PublicKey,
   SystemProgram,
@@ -14,7 +14,6 @@ import {
   getCachedAccount,
   useUserAccounts,
   useCachedPool,
-  getMultipleAccounts,
 } from "./accounts";
 import {
   programIds,
@@ -411,21 +410,32 @@ export const usePools = () => {
 
       // This will pre-cache all accounts used by pools
       // All those accounts are updated whenever there is a change
-      await getMultipleAccounts(connection, toQuery, "single").then(
-        ({ keys, array }) => {
-          return array.map((obj, index) => {
-            const pubKey = new PublicKey(keys[index]);
-            console.log(pubKey.toBase58(), obj.data.length, index, index%6);
-            if (obj.data.length === AccountLayout.span) {
-              return cache.addAccount(pubKey, obj);
-            } else if (obj.data.length === MintLayout.span) {
-              return cache.addMint(pubKey, obj);
-            }
-
-            return obj;
-          }) as any[];
+      const keyedAccounts = await getMultipleAccounts(connection, toQuery)
+      for (let i = 0; i < keyedAccounts.length; i++) {
+        const ka = keyedAccounts[i]
+        const pubKey = new PublicKey(ka.publicKey)
+        if (ka.accountInfo.data.length === AccountLayout.span) {
+          cache.addAccount(pubKey, ka.accountInfo)
+        } else if (ka.accountInfo.data.length === MintLayout.span) {
+          cache.addMint(pubKey, ka.accountInfo)
         }
-      );
+      }
+
+      //
+      // await getMultipleAccounts(connection, toQuery, "single").then(
+      //   ({ keys, array }) => {
+      //     return array.map((obj, index) => {
+      //       const pubKey = new PublicKey(keys[index]);
+      //       if (obj.data.length === AccountLayout.span) {
+      //         return cache.addAccount(pubKey, obj);
+      //       } else if (obj.data.length === MintLayout.span) {
+      //         // return cache.addMint(pubKey, obj);
+      //       }
+      //
+      //       return obj;
+      //     }) as any[];
+      //   }
+      // );
 
       return poolsArray;
     };
@@ -484,6 +494,44 @@ export const usePools = () => {
 
   return { pools };
 };
+
+async function getMultipleAccounts(
+  connection: Connection,
+  publicKeyStrs: string[]
+
+): Promise<{ publicKey: string; accountInfo: AccountInfo<Buffer> }[]> {
+
+  // @ts-ignore
+  const resp = await connection._rpcRequest('getMultipleAccounts', [publicKeyStrs]);
+  if (resp.error) {
+    throw new Error(resp.error.message);
+  }
+
+  const filtPubkeys: string[] = []
+  const filtData: any[] = []
+
+  for (let i = 0; i < resp.result.value.length; i++) {
+    if (resp.result.value[i] === null) {
+      console.log(resp.result.value[i], publicKeyStrs[i])
+    } else {
+      filtPubkeys.push(publicKeyStrs[i])
+      filtData.push(resp.result.value[i])
+    }
+  }
+
+  return filtData.map(
+    // @ts-ignore
+    ({ data, executable, lamports, owner } , i) => ({
+      publicKey: filtPubkeys[i],
+      accountInfo: {
+        data: Buffer.from(data[0], 'base64'),
+        executable,
+        owner: new PublicKey(owner),
+        lamports,
+      },
+    }),
+  );
+}
 
 export const usePoolForBasket = (mints: (string | undefined)[]) => {
   const connection = useConnection();

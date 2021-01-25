@@ -40,7 +40,7 @@ export interface MarketsContextState {
 }
 
 const INITAL_LIQUIDITY_DATE = new Date("2020-10-27");
-const REFRESH_INTERVAL = 30_000;
+const REFRESH_INTERVAL = 1_000;
 
 const BONFIDA_POOL_INTERVAL = 30 * 60_000; // 30 min
 
@@ -56,7 +56,7 @@ export function MarketProvider({ children = null as any }) {
     new Map()
   );
 
-  const connection = useMemo(() => new Connection(endpoint, "recent"), [
+  const connection = useMemo(() => new Connection(endpoint, "singleGossip"), [
     endpoint,
   ]);
 
@@ -136,7 +136,7 @@ export function MarketProvider({ children = null as any }) {
         connection,
         // only query for markets that are not in cahce
         allMarkets.filter((a) => cache.get(a) === undefined),
-        "single"
+        "singleGossip"
       ).then(({ keys, array }) => {
         allMarkets.forEach(() => {});
 
@@ -594,7 +594,7 @@ const refreshAccounts = async (connection: Connection, keys: string[]) => {
     return [];
   }
 
-  return getMultipleAccounts(connection, keys, "single").then(
+  return getMultipleAccounts(connection, keys, "singleGossip").then(
     ({ keys, array }) => {
       return array.map((item, index) => {
         const address = keys[index];
