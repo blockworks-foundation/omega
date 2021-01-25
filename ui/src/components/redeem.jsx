@@ -58,8 +58,7 @@ const OMEGA_CONTRACT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(32, 'signer_key'),
   BufferLayout.nu64('signer_nonce'),
   BufferLayout.blob(32, 'winner'),
-  BufferLayout.blob(32, 'outcome0'),
-  BufferLayout.blob(32, 'outcome1'),
+  BufferLayout.seq(BufferLayout.blob(32), MAX_OUTCOMES, 'outcomes'),
   BufferLayout.nu64('num_outcomes'),
   BufferLayout.blob(DETAILS_BUFFER_LEN, 'details')
 ]);
