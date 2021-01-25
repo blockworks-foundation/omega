@@ -10,6 +10,11 @@ let TOKEN_PROGRAM_ID = new PublicKey(
 let SWAP_PROGRAM_ID: PublicKey;
 let SWAP_PROGRAM_LEGACY_IDS: PublicKey[];
 
+export const SWAP_POOL_OWNERS = [
+  new PublicKey("9PPWSjY23rrzhkrT5LorPxowAVgEuJETEQqsc2ZzNaYs"),
+  new PublicKey("3CEUsYhLqQDFqNvBANFS3QR4kSGgv4ZvKcHQtzx8TdFi"),
+];
+
 export const SWAP_PROGRAM_OWNER_FEE_ADDRESS = new PublicKey(
   "FinVobfi4tbdMdfN9jhzUuDVqGXfcFnRGX57xHcTWLfW"
 );
