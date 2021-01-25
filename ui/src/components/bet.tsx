@@ -36,7 +36,7 @@ const SBMarketView = (props: {}) => {
         <Col>
           <div style={colStyle}>
               <p>
-                <img src={m.outcomes[1].icon} alt={m.outcomes[1].name} width="200px" height="200px"/>
+                <img src="/markets/SUPERBOWL21/tom.png" alt={m.outcomes[1].name} width="200px" height="200px"/>
               </p>
               <h1>Tampa Bay Buccaneers</h1>
               <p>
