@@ -90,6 +90,13 @@ pub enum Command {
         swap_program_id: String
     },
 
+    PrintBs58 {
+        #[clap(long, short)]
+        keypair: String,
+        #[clap(long, short)]
+        filepath: Option<String>,
+    },
+
 }
 
 impl Opts {
@@ -373,6 +380,23 @@ pub fn start(opts: Opts) -> Result<()> {
             // let signers = vec![&payer, &swap_kp];
             // send_instructions(&client, instructions, signers, &payer.pubkey())?;
             // println!("finished");
+        }
+
+        Command::PrintBs58 {
+            keypair,
+            filepath
+        } => {
+
+            let keypair = read_keypair_file(keypair.as_str())?;
+            match filepath {
+                None => {
+                    println!("{}", keypair.to_base58_string());
+                }
+                Some(filepath) => {
+                    let mut f = File::create(filepath.as_str()).unwrap();
+                    write!(&mut f, "{}", keypair.to_base58_string())?;
+                }
+            }
         }
     }
     Ok(())
