@@ -39,6 +39,12 @@ Significant contributions to the source code may be compensated with a grant fro
   * Integrate this into the Exchange page
   * Write tool to automatically convert the ERC20 USDC into SPL USDC using sollet.io
 
+### build program and deploy
+```
+cd ~/omega/program
+cargo build-bpf
+OMEGA_PROGRAM_ID="$(solana program deploy target/deploy/omega.so | jq .programId -r)"
+```
 ### setup testing
 ```
 # Get solana tools
