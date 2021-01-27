@@ -505,21 +505,26 @@ async function getMultipleAccounts(
 
 ): Promise<{ publicKey: string; accountInfo: AccountInfo<Buffer> }[]> {
 
-  // @ts-ignore
-  const resp = await connection._rpcRequest('getMultipleAccounts', [publicKeyStrs]);
-  if (resp.error) {
-    throw new Error(resp.error.message);
-  }
+
 
   const filtPubkeys: string[] = []
   const filtData: any[] = []
 
-  for (let i = 0; i < resp.result.value.length; i++) {
-    if (resp.result.value[i] === null) {
-      console.log("NULL ACCOUNT", resp.result.value[i], publicKeyStrs[i])
-    } else {
-      filtPubkeys.push(publicKeyStrs[i])
-      filtData.push(resp.result.value[i])
+  for (let i = 0; i < Math.ceil(publicKeyStrs.length / 100); i++) {
+
+    let batchKeys = publicKeyStrs.slice(i * 100, Math.min((i + 1) * 100, publicKeyStrs.length));
+    // @ts-ignore
+    const resp = await connection._rpcRequest('getMultipleAccounts', [batchKeys]);
+    if (resp.error) {
+      throw new Error(resp.error.message);
+    }
+    for (let j = 0; j < resp.result.value.length; j++) {
+      if (resp.result.value[j] === null) {
+        console.log("NULL ACCOUNT", resp.result.value[j], batchKeys[j])
+      } else {
+        filtPubkeys.push(batchKeys[j])
+        filtData.push(resp.result.value[j])
+      }
     }
   }
 
@@ -535,6 +540,7 @@ async function getMultipleAccounts(
       },
     }),
   );
+
 }
 
 export const usePoolForBasket = (mints: (string | undefined)[]) => {
