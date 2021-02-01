@@ -22,6 +22,9 @@ import { markets } from "../markets";
 
 
 import { useMint } from '../utils/accounts';
+import { fetchAccounts, userTokenAccount } from '../utils/fetchAccounts';
+// For creating a token from usdc
+import issueSet from '../utils/issueSet';
 import { useConnection } from '../utils/connection';
 import { useWallet } from '../utils/wallet';
 import {sendTransaction} from "../utils/utils";
@@ -75,7 +78,6 @@ async function queryMarketContract(conn, contract) {
 
 
 
-const IC_ISSUE_SET = 1;
 const IC_REDEEM_SET = 2;
 const IC_REDEEM_WINNER = 3;
 
@@ -88,28 +90,6 @@ function encodeInstructionData(layout, args) {
   let data = Buffer.alloc(1024);
   const encodeLength = layout.encode(args, data);
   return data.slice(0, encodeLength);
-}
-
-function IssueSetInstruction(omegaContract, user, userQuote, vault, omegaSigner, outcomePks, quantity) {
-  let keys = [
-    { pubkey: omegaContract, isSigner: false, isWritable: false },
-    { pubkey: user, isSigner: true, isWritable: false },
-    { pubkey: userQuote, isSigner: false, isWritable: true },
-    { pubkey: vault, isSigner: false, isWritable: true },
-    { pubkey: TokenInstructions.TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-    { pubkey: omegaSigner, isSigner: false, isWritable: false }
-  ];
-
-  for (var i = 0; i < outcomePks.length; i++) {
-    keys.push({pubkey: outcomePks[i], isSigner: false, isWritable: true});
-  }
-
-  const data = encodeInstructionData(instructionLayout, {
-    instruction: IC_ISSUE_SET,
-    quantity
-  });
-
-  return new TransactionInstruction({keys: keys, programId: PROGRAM_ID, data: data});
 }
 
 function RedeemSetInstruction(omegaContract, user, userQuote, vault, omegaSigner, outcomePks, quantity) {
@@ -184,24 +164,6 @@ export const RedeemView = (props) => {
     console.log('contract.decided', contractData.decided);
   }, [contractData]);
 
-
-  async function fetchAccounts() {
-    console.log('Fetch all SPL tokens for', wallet.publicKey.toString());
-
-    const response = await connection.getParsedTokenAccountsByOwner(
-      wallet.publicKey,
-      { programId: TokenInstructions.TOKEN_PROGRAM_ID }
-    );
-
-    console.log(response.value.length, 'SPL tokens found', response);
-
-    response.value.map((a) => a.account.data.parsed.info).forEach((info, _) => {
-      console.log(info.mint, info.tokenAmount.uiAmount);
-    });
-
-    return response.value;
-  }
-
   async function createTokenAccountTransaction(mintPubkey) {
     const newAccount = new Account();
     const transaction = new Transaction();
@@ -230,92 +192,23 @@ export const RedeemView = (props) => {
     };
   }
 
-  async function userTokenAccount(accounts, mintPubkey) {
-    let account = accounts.find(a => a.account.data.parsed.info.mint === mintPubkey.toBase58())
-    if (account) {
-      console.log('account exists', mintPubkey.toString(), account.pubkey.toString());
-      return account.pubkey;
-    } else {
-      console.log('creating new account for', mintPubkey.toString());
-      let { transaction, signer, newAccountPubkey } = await createTokenAccountTransaction(mintPubkey);
-
-      let signers = [signer]
-
-      const instrStr = 'create account'
-      let txid = await sendTransaction({
-        transaction,
-        wallet,
-        signers,
-        connection,
-        sendingMessage: `sending ${instrStr}...`,
-        sentMessage: `${instrStr} sent`,
-        successMessage: `${instrStr} success`
-      });
-      console.log("txid", txid);
-      console.log('pubkey', newAccountPubkey.toString());
-
-      return newAccountPubkey;
-    }
-  }
-
   function parseAmount(amount) {
     return parseFloat(amount) * Math.pow(10, quoteMint.decimals);
   }
-
-  async function issueSet(market, amount) {
-
-    if (!wallet.connected) await wallet.connect();
-    console.log('issueSet', amount);
-
-    const accounts = await fetchAccounts();
-
-    let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
-    let outcomePks = [];
-    let outcomeInfos = market["outcomes"];
-    let numOutcomes = outcomeInfos.length;
-    for (let i = 0; i < numOutcomes; i++) {
-      let outcomeMint = new PublicKey(outcomeInfos[i]["mint_pk"]);
-      outcomePks.push(outcomeMint);
-      let userOutcomeWallet = await userTokenAccount(accounts, outcomeMint);
-      outcomePks.push(userOutcomeWallet);
-      console.log(outcomeInfos[i]["name"], outcomeMint, userOutcomeWallet);
-    }
-    let issueSetInstruction = IssueSetInstruction(
-      new PublicKey(market.omega_contract_pk),
-      wallet.publicKey,
-      userQuote,
-      new PublicKey(market.quote_vault_pk),
-      new PublicKey(market.signer_pk),
-      outcomePks,
-      amount);
-    let transaction = new Transaction();
-    transaction.add(issueSetInstruction);
-
-    let txid = await sendTransaction({
-      transaction,
-      wallet,
-      signers: [],
-      connection,
-      sendingMessage: 'sending IssueSetInstruction...',
-      sentMessage: 'IssueSetInstruction sent',
-      successMessage: 'IssueSetInstruction success'
-    });
-    console.log('success txid:', txid);
-  }
-
+  
   async function redeemSet(market, amount) {
     if (!wallet.connected) await wallet.connect();
     console.log('redeemSet', amount);
-    const accounts = await fetchAccounts();
+    const accounts = await fetchAccounts(wallet, connection);
 
-    let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
+    let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT, wallet, connection);
     let outcomePks = [];
     let outcomeInfos = market["outcomes"];
     let numOutcomes = outcomeInfos.length;
     for (let i = 0; i < numOutcomes; i++) {
       let outcomeMint = new PublicKey(outcomeInfos[i]["mint_pk"]);
       outcomePks.push(outcomeMint);
-      let userOutcomeWallet = await userTokenAccount(accounts, outcomeMint);
+      let userOutcomeWallet = await userTokenAccount(accounts, outcomeMint, wallet, connection);
       outcomePks.push(userOutcomeWallet);
       console.log(outcomeInfos[i]["name"], outcomeMint, userOutcomeWallet);
     }
@@ -346,7 +239,7 @@ export const RedeemView = (props) => {
     if (!wallet.connected) await wallet.connect();
     console.log('redeemWinner', amount);
 
-    const accounts = await fetchAccounts();
+    const accounts = await fetchAccounts(wallet, connection);
     let winner = new PublicKey(contractData.winner);
     console.log(winner);
     let zeroPubkey = new PublicKey(new Uint8Array(32));
@@ -356,8 +249,8 @@ export const RedeemView = (props) => {
       return;
     }
 
-    let winnerWallet = await userTokenAccount(accounts, winner);
-    let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT);
+    let winnerWallet = await userTokenAccount(accounts, winner, wallet, connection);
+    let userQuote = await userTokenAccount(accounts, QUOTE_CURRENCY_MINT, wallet, connection);
 
     let redeemWinnerInstruction = RedeemWinnerInstruction(
       new PublicKey(market.omega_contract_pk),
@@ -502,7 +395,7 @@ export const RedeemView = (props) => {
                   <Button
                     className="trade-button"
                     type="primary"
-                    onClick={connected ? () => issueSet(issueMarket, parseAmount(issueAmount)) : wallet.connect}
+                    onClick={connected ? () => issueSet(issueMarket, parseAmount(issueAmount), wallet, connection) : wallet.connect}
                     style={{ width: "100%" }}
                   >
                     { connected ? "Issue Tokens" : "Connect Wallet" }
