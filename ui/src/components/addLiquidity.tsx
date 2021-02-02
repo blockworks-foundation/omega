@@ -103,39 +103,25 @@ export const AddLiquidityView = (props: {
       async () => {
         if (A.account && B.account && A.mint && B.mint) {
           setPendingTx(true);
-          let amount = parseAmount(A.amount);
-          if (!amount) {
-            return;
-          }
-          issueSet(markets[0], amount / 2, wallet, connection)
+          // @ts-ignore
+          issueSet(markets[0], parseAmount(A.amount) / 2, wallet, connection)
             .then(async () => {
               setPendingTx(true);
-              let components = [
+              const components = [
                 {
                   account: A.account,
                   mintAddress: A.mintAddress,
                   amount: A.convertAmount(),
                 },
                 {
-                  account: props.firstMintPK.account,
-                  mintAddress: props.firstMintPK.mintAddress,
-                  amount: props.firstMintPK.convertAmount(),
+                  account: B.account,
+                  mintAddress: B.mintAddress,
+                  amount: B.convertAmount(),
                 },
               ];
               fundPool(components, pool1);
-              components = [
-                {
-                  account: A.account,
-                  mintAddress: A.mintAddress,
-                  amount: A.convertAmount(),
-                },
-                {
-                  account: props.secondMintPK.account,
-                  mintAddress: props.secondMintPK.mintAddress,
-                  amount: props.secondMintPK.convertAmount(),
-                },
-              ];
-              fundPool(components, pool2);
+              B.setMint(props.secondMintPK)
+              // fundPool();
             })
             .catch((e) => {
               console.log("Transaction failed", e);
