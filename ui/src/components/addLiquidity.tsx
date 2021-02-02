@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button, Spin, Select } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 // Auto generate button label
@@ -23,14 +23,12 @@ import { useCurrencyPairState } from "../utils/currencyPair";
 // Input box
 import { CurrencyInput } from "./currencyInput";
 // Opertions on the pool
-import { PoolOperation, addLiquidity, usePoolForBasket } from '../utils/pools';
+import { addLiquidity, usePoolForBasket } from '../utils/pools';
 // Make notifications
 import { notify } from '../utils/notifications'
 // 
 import { DEFAULT_DENOMINATOR } from "./pool/config";
 import { PoolConfig } from "../models";
-// Token Icons
-import { TokenIcon } from "./tokenIcon";
 
 // Create icons
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
@@ -39,7 +37,10 @@ const { Option } = Select;
 // TODO: Allow market change
 // TODO: Check for no pool
 // TODO: Only allow usdc account
-export const AddLiquidityView = (props: {}) => {
+export const AddLiquidityView = (props: {
+  firstMintPK: any,
+  secondMintPK: any
+}) => {
   const connection = useConnection();
   const { wallet, connected } = useWallet();
   const [pendingTx, setPendingTx] = useState(false);
@@ -48,11 +49,11 @@ export const AddLiquidityView = (props: {}) => {
   const {
     A,
     B,
-    setPoolOperation,
     setLastTypedAccount
   } = useCurrencyPairState();
-  const pool = usePoolForBasket([A?.mintAddress, B?.mintAddress]);
-  const { tokens, tokenMap } = useConnectionConfig();
+  const pool1 = usePoolForBasket([A?.mintAddress, props.firstMintPK?.mintAddress]);
+  const pool2 = usePoolForBasket([A?.mintAddress, props.secondMintPK?.mintAddress])
+  const { tokenMap } = useConnectionConfig();
   const { slippage } = useSlippageConfig();
   const [options, setOptions] = useState<PoolConfig>({
     curveType: 0,
@@ -76,7 +77,24 @@ export const AddLiquidityView = (props: {}) => {
     }
   }
 
-  const hasSufficientBalance = A.sufficientBalance() && B.sufficientBalance();
+  const fundPool = async (components: Array<any>, pool: any) => {
+    // Add the liquidity to the first pool
+    await addLiquidity(connection, wallet, components, slippage, pool, options)
+      .then(() => {
+        setPendingTx(false);
+      })
+      .catch((e) => {
+        console.log("Transaction failed", e);
+        notify({
+          description:
+            "Please try again and approve transactions from your wallet",
+          message: "Adding liquidity cancelled.",
+          type: "error",
+        });
+        setPendingTx(false);
+      });
+  }
+  const hasSufficientBalance = A.sufficientBalance()
 
   // Swap usdc for market tokens
   const executeAction =
@@ -85,36 +103,39 @@ export const AddLiquidityView = (props: {}) => {
       async () => {
         if (A.account && B.account && A.mint && B.mint) {
           setPendingTx(true);
-          issueSet(markets[0], parseAmount(1), wallet, connection)
-            .then(() => {
+          let amount = parseAmount(A.amount);
+          if (!amount) {
+            return;
+          }
+          issueSet(markets[0], amount / 2, wallet, connection)
+            .then(async () => {
               setPendingTx(true);
-              const components = [
+              let components = [
                 {
                   account: A.account,
                   mintAddress: A.mintAddress,
                   amount: A.convertAmount(),
                 },
                 {
-                  account: B.account,
-                  mintAddress: B.mintAddress,
-                  amount: B.convertAmount(),
+                  account: props.firstMintPK.account,
+                  mintAddress: props.firstMintPK.mintAddress,
+                  amount: props.firstMintPK.convertAmount(),
                 },
               ];
-
-              addLiquidity(connection, wallet, components, slippage, pool, options)
-                .then(() => {
-                  setPendingTx(false);
-                })
-                .catch((e) => {
-                  console.log("Transaction failed", e);
-                  notify({
-                    description:
-                      "Please try again and approve transactions from your wallet",
-                    message: "Adding liquidity cancelled.",
-                    type: "error",
-                  });
-                  setPendingTx(false);
-                });
+              fundPool(components, pool1);
+              components = [
+                {
+                  account: A.account,
+                  mintAddress: A.mintAddress,
+                  amount: A.convertAmount(),
+                },
+                {
+                  account: props.secondMintPK.account,
+                  mintAddress: props.secondMintPK.mintAddress,
+                  amount: props.secondMintPK.convertAmount(),
+                },
+              ];
+              fundPool(components, pool2);
             })
             .catch((e) => {
               console.log("Transaction failed", e);
@@ -138,7 +159,6 @@ export const AddLiquidityView = (props: {}) => {
         <CurrencyInput
           title="Input"
           onInputChange={(val: any) => {
-            setPoolOperation(PoolOperation.Add);
             if (A.amount !== val) {
               setLastTypedAccount(A.mintAddress);
             }

@@ -77,9 +77,9 @@ export const useCurrencyLeg = (defaultMint?: string) => {
 };
 
 export function CurrencyPairProvider({
-    baseMintAddress = "" as string,
-    quoteMintAddress = "" as string,
-    children = null as any }) {
+  baseMintAddress = "" as string,
+  quoteMintAddress = "" as string,
+  children = null as any }) {
 
   const connection = useConnection();
   const { tokens } = useConnectionConfig();
@@ -108,27 +108,27 @@ export function CurrencyPairProvider({
   // disabled: doesn't work well with multiple swaps on the same page
   // updates browser history on token changes
   //useEffect(() => {
-    //// set history
-    //const base =
-      //tokens.find((t) => t.mintAddress === mintAddressA)?.tokenSymbol ||
-      //mintAddressA;
-    //const quote =
-      //tokens.find((t) => t.mintAddress === mintAddressB)?.tokenSymbol ||
-      //mintAddressB;
+  //// set history
+  //const base =
+  //tokens.find((t) => t.mintAddress === mintAddressA)?.tokenSymbol ||
+  //mintAddressA;
+  //const quote =
+  //tokens.find((t) => t.mintAddress === mintAddressB)?.tokenSymbol ||
+  //mintAddressB;
 
-    //if (base && quote && location.pathname.indexOf("info") < 0) {
-      //history.push({
-        //search: `?pair=${base}-${quote}`,
-      //});
-    //} else {
-      //if (mintAddressA && mintAddressB) {
-        //history.push({
-          //search: ``,
-        //});
-      //} else {
-        //return;
-      //}
-    //}
+  //if (base && quote && location.pathname.indexOf("info") < 0) {
+  //history.push({
+  //search: `?pair=${base}-${quote}`,
+  //});
+  //} else {
+  //if (mintAddressA && mintAddressB) {
+  //history.push({
+  //search: ``,
+  //});
+  //} else {
+  //return;
+  //}
+  //}
   //}, [mintAddressA, mintAddressB, tokens, history, location.pathname]);
 
   // Updates tokens on location change
@@ -147,13 +147,13 @@ export function CurrencyPairProvider({
 
     setMintAddressA(
       tokens.find((t) => t.tokenSymbol === defaultBase)?.mintAddress ||
-        (isValidAddress(defaultBase) ? defaultBase : "") ||
-        ""
+      (isValidAddress(defaultBase) ? defaultBase : "") ||
+      ""
     );
     setMintAddressB(
       tokens.find((t) => t.tokenSymbol === defaultQuote)?.mintAddress ||
-        (isValidAddress(defaultQuote) ? defaultQuote : "") ||
-        ""
+      (isValidAddress(defaultQuote) ? defaultQuote : "") ||
+      ""
     );
     // mintAddressA and mintAddressB are not included here to prevent infinite loop
     // eslint-disable-next-line

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Popover, Col, Row } from "antd";
 import { Settings } from "./settings";
 import { SettingOutlined } from "@ant-design/icons";
@@ -54,7 +54,7 @@ export const ExchangeView = (props: {}) => {
               <div style={colStyle}>
                 <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
                   quoteMintAddress={market.outcomes[0].mint_pk} >
-                  <AddLiquidityView />
+                  <AddLiquidityView secondMintPK={market.outcomes[1]} firstMintPK={market.outcomes[0]} />
                 </CurrencyPairProvider>
               </div>
             </Col>
