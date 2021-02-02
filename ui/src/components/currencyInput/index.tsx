@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Select } from "antd";
 import { NumericInput } from "../numericInput";
-import { getPoolName, getTokenName, isKnownMint } from "../../utils/utils";
+import { getPoolName, getTokenName, isKnownMint, KnownToken, } from "../../utils/utils";
 import {
   useUserAccounts,
   useMint,
@@ -73,6 +73,7 @@ export const CurrencyInput = (props: {
   onInputChange?: (val: number) => void;
   onMintChange?: (account: string) => void;
   forceMint?: string;
+  renderOneTokenItem?: string
 }) => {
   const { userAccounts } = useUserAccounts();
   const { pools } = useCachedPool();
@@ -84,6 +85,21 @@ export const CurrencyInput = (props: {
     tokens = tokens.filter(t => t.mintAddress === props.forceMint);
   }
 
+  let renderSingleToken: JSX.Element | undefined;
+  if (props.renderOneTokenItem) {
+    let mint = props.renderOneTokenItem;
+    let name = getTokenName(tokenMap, mint, true, 3);
+    let icon = <TokenIcon mintAddress={mint} />;
+    renderSingleToken = <Option key={mint} value={mint} name={name}>
+      <TokenDisplay
+        key={mint}
+        mintAddress={mint}
+        name={name}
+        icon={icon}
+        showBalance={true}
+      />
+    </Option>
+  }
   const renderPopularTokens = tokens.map((item) => {
     return (
       <Option
@@ -230,7 +246,7 @@ export const CurrencyInput = (props: {
               option?.name?.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
           >
-            {[...renderPopularTokens, ...renderAdditionalTokens]}
+            {renderSingleToken || [...renderPopularTokens, ...renderAdditionalTokens]}
           </Select>
         </div>
       </div>

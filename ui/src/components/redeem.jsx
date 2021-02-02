@@ -78,7 +78,6 @@ async function queryMarketContract(conn, contract) {
 
 
 
-const IC_ISSUE_SET = 1;
 const IC_REDEEM_SET = 2;
 const IC_REDEEM_WINNER = 3;
 
