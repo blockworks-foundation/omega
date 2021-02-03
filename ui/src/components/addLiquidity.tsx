@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Spin } from "antd";
+import { Button, Spin, Popover } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 // Auto generate button label
 import {
@@ -21,8 +21,6 @@ import { CurrencyInput } from "./currencyInput";
 // Opertions on the pool
 import { addLiquidity, PoolForBasketPromise, usePoolForBasket, calculateDependentAmount, PoolOperation } from '../utils/pools';
 import { useMint } from '../utils/accounts';
-
-import { useCurrencyPairState } from "../utils/currencyPair";
 // Make notifications
 import { notify } from '../utils/notifications'
 // 
@@ -165,6 +163,16 @@ export const AddLiquidityView = (props: {
   return (
     <>
       <div>
+        <Popover
+          trigger="hover"
+          content={
+            <div style={{ width: 300 }}>
+              Provide Liquidity to pool in one step.
+            </div>
+          }
+        >
+          <Button type="text">What is this.</Button>
+        </Popover>
         <CurrencyInput
           title="Input"
           onInputChange={(val: any) => {
@@ -194,7 +202,7 @@ export const AddLiquidityView = (props: {
               !hasSufficientBalance)
           }
         >
-          {generateActionLabel(ADD_LIQUIDITY_LABEL, connected, tokenMap, baseMintAddress, outcome0)}
+          {generateActionLabel(ADD_LIQUIDITY_LABEL, connected, tokenMap, baseMintAddress, baseMintAddress)}
           {pendingTx && <Spin indicator={antIcon} className="add-spinner" />}
         </Button>
 

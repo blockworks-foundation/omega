@@ -34,6 +34,14 @@ export const ExchangeView = (props: {}) => {
       { markets.map((market: any) =>
         <>
           <Row justify="center">
+            <Col flex={0}>
+              <div style={colStyle}>
+
+                <AddLiquidityView market={market} baseMintAddress={market.quote_mint_pk} outcomes={market.outcomes} />
+              </div>
+            </Col>
+          </Row>
+          <Row justify="center">
             <Col flex={2}>
               <div style={colStyle}>
                 <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
@@ -47,14 +55,6 @@ export const ExchangeView = (props: {}) => {
                 <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
                   quoteMintAddress={market.outcomes[1].mint_pk} >
                   <SwapView />
-                </CurrencyPairProvider>
-              </div>
-            </Col>
-            <Col flex={0}>
-              <div style={colStyle}>
-                <CurrencyPairProvider baseMintAddress={market.quote_mint_pk}
-                  quoteMintAddress={market.outcomes[0].mint_pk} >
-                  <AddLiquidityView secondMintPK={market.outcomes[1]} firstMintPK={market.outcomes[0]} />
                 </CurrencyPairProvider>
               </div>
             </Col>
