@@ -212,8 +212,6 @@ export const AddLiquidityView = (props: {
             connected &&
             (pendingTx ||
               !baseMintAddress.account ||
-              !outcome0.account ||
-              !outcome1.account ||
               baseMintAddress.account === outcome1.account ||
               baseMintAddress.account === outcome1.account ||
               !hasSufficientBalance)
