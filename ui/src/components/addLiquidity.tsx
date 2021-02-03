@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { Button, Spin, Select } from "antd";
+import React, { useState } from "react";
+import { Button, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 // Auto generate button label
 import {
@@ -8,53 +8,56 @@ import {
 } from "./labels";
 // Issue set helper
 import issueSet from '../utils/issueSet';
-import { markets } from "../markets";
 // Connect to wallet
 import { useWallet } from '../utils/wallet';
 // Create connection to wallet
 import {
   useConnection, useConnectionConfig, useSlippageConfig
 } from '../utils/connection';
-// Our contract details
-import contract_keys from "../contract_keys.json";
-import { useMint } from '../utils/accounts';
 // Currency pair on this market
-import { useCurrencyPairState } from "../utils/currencyPair";
+import { useCurrencyLeg } from "../utils/currencyPair";
 // Input box
 import { CurrencyInput } from "./currencyInput";
 // Opertions on the pool
-import { addLiquidity, usePoolForBasket } from '../utils/pools';
+import { addLiquidity, PoolForBasketPromise, usePoolForBasket, calculateDependentAmount, PoolOperation } from '../utils/pools';
+import { useMint } from '../utils/accounts';
+
+import { useCurrencyPairState } from "../utils/currencyPair";
 // Make notifications
 import { notify } from '../utils/notifications'
 // 
 import { DEFAULT_DENOMINATOR } from "./pool/config";
+// For setting the config of the pool
 import { PoolConfig } from "../models";
-
+// Lists of known pools
+import { useCachedPool } from '../utils/accounts';
+// Typescript: type of mint
+import { MintInfo } from "@solana/spl-token";
 // Create icons
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
-const { Option } = Select;
+
 
 // TODO: Allow market change
 // TODO: Check for no pool
 // TODO: Only allow usdc account
 export const AddLiquidityView = (props: {
-  firstMintPK: any,
-  secondMintPK: any
+  market: any,
+  baseMintAddress: string,
+  outcomes: Array<any>
 }) => {
   const connection = useConnection();
   const { wallet, connected } = useWallet();
   const [pendingTx, setPendingTx] = useState(false);
-  // The mint address public key
-  const quoteMint = useMint(contract_keys.quote_mint_pk);
-  const {
-    A,
-    B,
-    setLastTypedAccount
-  } = useCurrencyPairState();
-  const pool1 = usePoolForBasket([A?.mintAddress, props.firstMintPK?.mintAddress]);
-  const pool2 = usePoolForBasket([A?.mintAddress, props.secondMintPK?.mintAddress])
+  let pendingTxNum = 0;
   const { tokenMap } = useConnectionConfig();
   const { slippage } = useSlippageConfig();
+  // Create useful methods on our mint address
+  const baseMintAddress = useCurrencyLeg(props.baseMintAddress);
+  const outcome0 = useCurrencyLeg(props.outcomes[0].mint_pk);
+  const outcome1 = useCurrencyLeg(props.outcomes[1].mint_pk);
+  const baseMint = useMint(props.baseMintAddress);
+  const outcome0Mint = useMint(props.outcomes[0].mint_pk);
+  const outcome1Mint = useMint(props.outcomes[1].mint_pk);
   const [options, setOptions] = useState<PoolConfig>({
     curveType: 0,
     tradeFeeNumerator: 25,
@@ -64,24 +67,17 @@ export const AddLiquidityView = (props: {
     ownerWithdrawFeeNumerator: 0,
     ownerWithdrawFeeDenominator: DEFAULT_DENOMINATOR,
   });
-
-  const parseAmount = (amount: any) => {
-    if (quoteMint) {
-      try {
-        return parseFloat(amount) * Math.pow(10, quoteMint.decimals);
-      } catch (error) {
-        // TODOl WHat to do here
-      }
-    } else {
-      // TODO: What to do here
-    }
-  }
+  const { pools } = useCachedPool();
 
   const fundPool = async (components: Array<any>, pool: any) => {
+    pendingTxNum += 1;
     // Add the liquidity to the first pool
-    await addLiquidity(connection, wallet, components, slippage, pool, options)
+    addLiquidity(connection, wallet, components, slippage, pool, options)
       .then(() => {
-        setPendingTx(false);
+        pendingTxNum -= 1;
+        if (pendingTxNum === 0) {
+          setPendingTx(false);
+        }
       })
       .catch((e) => {
         console.log("Transaction failed", e);
@@ -91,37 +87,61 @@ export const AddLiquidityView = (props: {
           message: "Adding liquidity cancelled.",
           type: "error",
         });
-        setPendingTx(false);
+        pendingTxNum -= 1;
+        if (pendingTxNum === 0) {
+          setPendingTx(false);
+        }
       });
   }
-  const hasSufficientBalance = A.sufficientBalance()
+  const hasSufficientBalance = baseMintAddress.sufficientBalance()
 
+  function parseAmount(mint: MintInfo | undefined, amount: string) {
+    return parseFloat(amount) * Math.pow(10, mint?.decimals || 0);
+  }
   // Swap usdc for market tokens
   const executeAction =
     !connected
       ? wallet.connect :
       async () => {
-        if (A.account && B.account && A.mint && B.mint) {
+        // TODO: Confirm mint address exists for outcome pk
+        // TODO: Should fail fast be implemented here i.e if one pool was not funded, can the other pool be ?
+        if (baseMintAddress.account && baseMintAddress.mint) {
           setPendingTx(true);
+          pendingTxNum += 1;
           // @ts-ignore
-          issueSet(markets[0], parseAmount(A.amount) / 2, wallet, connection)
+          issueSet(props.market, parseAmount(baseMint, baseMintAddress.amount) / 2, wallet, connection)
             .then(async () => {
-              setPendingTx(true);
-              const components = [
-                {
-                  account: A.account,
-                  mintAddress: A.mintAddress,
-                  amount: A.convertAmount(),
-                },
-                {
-                  account: B.account,
-                  mintAddress: B.mintAddress,
-                  amount: B.convertAmount(),
-                },
-              ];
-              fundPool(components, pool1);
-              B.setMint(props.secondMintPK)
-              // fundPool();
+              pendingTxNum -= 1;
+              // Fund pools of the outcome pk
+              [outcome0, outcome1].forEach(async (outcome, i) => {
+                PoolForBasketPromise([baseMintAddress.mintAddress, outcome.mintAddress].sort(), connection, pools).then(async (pool) => {
+                  const components = [
+                    {
+                      account: baseMintAddress.account,
+                      mintAddress: baseMintAddress.mintAddress,
+                      amount: await calculateDependentAmount(connection, outcome.mintAddress, parseAmount(i === 0 ? outcome0Mint : outcome1Mint, baseMintAddress.amount) / 2, pool, PoolOperation.Add),
+                    },
+                    {
+                      account: outcome.account,
+                      mintAddress: outcome.mintAddress,
+                      amount: parseAmount(i === 0 ? outcome0Mint : outcome1Mint, baseMintAddress.amount) / 2,
+                    },
+                  ];
+                  fundPool(components, pool);
+                }).catch((e) => {
+                  console.log("Transaction failed", e);
+                  notify({
+                    description:
+                      "Please try again and approve transactions from your wallet",
+                    message: "Adding liquidity cancelled.",
+                    type: "error",
+                  });
+                  pendingTxNum -= 1;
+                  if (pendingTxNum === 0) {
+                    setPendingTx(false);
+                  }
+                });
+              })
             })
             .catch((e) => {
               console.log("Transaction failed", e);
@@ -131,7 +151,10 @@ export const AddLiquidityView = (props: {
                 message: "Adding liquidity cancelled.",
                 type: "error",
               });
-              setPendingTx(false);
+              pendingTxNum -= 1;
+              if (pendingTxNum === 0) {
+                setPendingTx(false);
+              }
             });
         }
       }
@@ -145,18 +168,15 @@ export const AddLiquidityView = (props: {
         <CurrencyInput
           title="Input"
           onInputChange={(val: any) => {
-            if (A.amount !== val) {
-              setLastTypedAccount(A.mintAddress);
-            }
-            A.setAmount(val);
+            baseMintAddress.setAmount(val);
           }}
-          amount={A.amount}
-          mint={A.mintAddress}
+          amount={baseMintAddress.amount}
+          mint={baseMintAddress.mintAddress}
           onMintChange={(item) => {
-            A.setMint(item);
+            baseMintAddress.setMint(item);
           }}
-          forceMint={A.mintAddress}
-          renderOneTokenItem={A.mintAddress}
+          forceMint={baseMintAddress.mintAddress}
+          renderOneTokenItem={baseMintAddress.mintAddress}
         />
 
         <Button
@@ -166,13 +186,15 @@ export const AddLiquidityView = (props: {
           disabled={
             connected &&
             (pendingTx ||
-              !A.account ||
-              !B.account ||
-              A.account === B.account ||
+              !baseMintAddress.account ||
+              !outcome0.account ||
+              !outcome1.account ||
+              baseMintAddress.account === outcome1.account ||
+              baseMintAddress.account === outcome1.account ||
               !hasSufficientBalance)
           }
         >
-          {generateActionLabel(ADD_LIQUIDITY_LABEL, connected, tokenMap, A, B)}
+          {generateActionLabel(ADD_LIQUIDITY_LABEL, connected, tokenMap, baseMintAddress, outcome0)}
           {pendingTx && <Spin indicator={antIcon} className="add-spinner" />}
         </Button>
 
