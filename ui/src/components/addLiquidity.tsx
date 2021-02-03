@@ -109,6 +109,15 @@ export const AddLiquidityView = (props: {
           // @ts-ignore
           issueSet(props.market, parseAmount(baseMint, baseMintAddress.amount) / 2, wallet, connection)
             .then(async () => {
+              // Check that the outcome token accounts exists
+              if (!outcome0.account || !outcome1.account) {
+                notify({
+                  description:
+                    "Token account does not exists",
+                  message: "Adding liquidity cancelled.",
+                  type: "error",
+                });
+              }
               pendingTxNum -= 1;
               // Fund pools of the outcome pk
               [outcome0, outcome1].forEach(async (outcome, i) => {
