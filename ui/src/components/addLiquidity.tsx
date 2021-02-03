@@ -163,16 +163,33 @@ export const AddLiquidityView = (props: {
   return (
     <>
       <div>
-        <Popover
-          trigger="hover"
-          content={
-            <div style={{ width: 300 }}>
-              Provide Liquidity to pool in one step.
+        <div>
+          <Popover
+            trigger="hover"
+            content={
+              <div style={{ width: 300 }}>
+                Provide Liquidity to pool in one step.
             </div>
-          }
-        >
-          <Button type="text">What is this.</Button>
-        </Popover>
+            }
+          >
+            <Button type="text">What is this.</Button>
+          </Popover>
+        </div>
+        <div>
+          <Popover
+            trigger="hover"
+            content={
+              <div style={{ width: 300 }}>
+                Liquidity providers earn a fixed percentage fee on all trades
+                proportional to their share of the pool. Fees are added to the
+                pool, accrue in real time and can be claimed by withdrawing your
+                liquidity.
+            </div>
+            }
+          >
+            <Button type="text">Read more about providing liquidity.</Button>
+          </Popover>
+        </div>
         <CurrencyInput
           title="Input"
           onInputChange={(val: any) => {
