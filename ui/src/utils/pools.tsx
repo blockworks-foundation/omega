@@ -33,7 +33,7 @@ import {
   swapInstruction,
   PoolConfig,
 } from "./../models";
-import {sendTransaction} from "./utils";
+import { sendTransaction } from "./utils";
 
 const LIQUIDITY_TOKEN_PRECISION = 8;
 
@@ -165,7 +165,7 @@ export const removeLiquidity = async (
     successMessage: `${instrStr} success`
   });
 
-  if(deleteAccount) {
+  if (deleteAccount) {
     cache.deleteAccount(account.pubkey);
   }
 
@@ -530,7 +530,7 @@ async function getMultipleAccounts(
 
   return filtData.map(
     // @ts-ignore
-    ({ data, executable, lamports, owner } , i) => ({
+    ({ data, executable, lamports, owner }, i) => ({
       publicKey: filtPubkeys[i],
       accountInfo: {
         data: Buffer.from(data[0], 'base64'),
@@ -541,6 +541,33 @@ async function getMultipleAccounts(
     }),
   );
 
+}
+
+// Promisified usePoolForBasket
+export const PoolForBasketPromise = async (mints: (string | undefined)[], connection: Connection, pools: PoolInfo[]): Promise<PoolInfo> => {
+  return new Promise(async (resolve, _reject) => {
+    // Find pools mathing these mints
+    let matchingPool = pools
+      .filter((p) => !p.legacy)
+      .filter((p) =>
+        p.pubkeys.holdingMints
+          .map((a) => a.toBase58())
+          .sort()
+          .every((address, i) => address === mints[i])
+      );
+    // Find first address with non-zero amount
+    for (let i = 0; i < matchingPool.length; i++) {
+      const p = matchingPool[i];
+
+      const account = await cache.queryAccount(
+        connection,
+        p.pubkeys.holdingAccounts[0]
+      )
+      if (!account.info.amount.eqn(0)) {
+        return resolve(p);
+      }
+    }
+  })
 }
 
 export const usePoolForBasket = (mints: (string | undefined)[]) => {
@@ -561,7 +588,6 @@ export const usePoolForBasket = (mints: (string | undefined)[]) => {
             .sort()
             .every((address, i) => address === sortedMints[i])
         );
-
       for (let i = 0; i < matchingPool.length; i++) {
         const p = matchingPool[i];
 
@@ -1047,7 +1073,7 @@ async function _addLiquidityNewPool(
   console.log('here0', SWAP_PROGRAM_OWNER_FEE_ADDRESS.toString(), wallet.publicKey.toString());
 
   // create all accounts in one transaction
-  signers =  [
+  signers = [
     liquidityTokenAccount,
     depositorAccount,
     feeAccount,
