@@ -146,6 +146,7 @@ export const RedeemView = (props) => {
     exp_time: 1612137600, // 02/01/2021 00:00 UTC
     decided: false
   });
+  const [winnerOutcome, setWinnerOutcome] = useState("");
 
   useEffect(() => {
     async function fetchContractData(market) {
@@ -165,6 +166,17 @@ export const RedeemView = (props) => {
   useEffect(() => {
     console.log('contract.exp_time', new Date(contractData.exp_time * 1000));
     console.log('contract.decided', contractData.decided);
+    if (contractData.winner) {
+      const winner_pk = new PublicKey(contractData.winner).toBase58();
+      console.log('winner_pk', winner_pk);
+      markets.forEach(m => {
+        m.outcomes.forEach(o => {
+          if (o.mint_pk === winner_pk) {
+            setWinnerOutcome(o.name);
+          }
+        });
+      });
+    }
   }, [contractData]);
 
   async function createTokenAccountTransaction(mintPubkey) {
@@ -335,6 +347,7 @@ export const RedeemView = (props) => {
                     style={{
                       "margin-bottom": 10,
                     }}
+                    addonAfter={winnerOutcome}
                     placeholder="0.00"
                   disabled={!contractData.decided}
                  />
