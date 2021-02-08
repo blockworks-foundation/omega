@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Account,
   PublicKey,
-  sendAndConfirmRawTransaction,
+  SYSVAR_CLOCK_PUBKEY,
   SystemProgram,
   Transaction,
   TransactionInstruction,
@@ -124,6 +124,7 @@ function RedeemWinnerInstruction(omegaContract, user, userQuote, vault, omegaSig
     { pubkey: omegaSigner, isSigner: false, isWritable: false },
     { pubkey: winnerMint, isSigner: false, isWritable: true},
     { pubkey: winnerWallet, isSigner: false, isWritable: true},
+    { pubkey: SYSVAR_CLOCK_PUBKEY, isWritable: false, isSigner: false }
   ];
 
   const data = encodeInstructionData(instructionLayout, {
@@ -152,6 +153,8 @@ export const RedeemView = (props) => {
       let data = await queryMarketContract(connection, new PublicKey(market.omega_contract_pk));
       let winner = new PublicKey(data.winner);
       let zeroPubkey = new PublicKey(new Uint8Array(32));
+
+      console.log(new PublicKey(market.omega_contract_pk))
       data['decided'] = !winner.equals(zeroPubkey);
       setContractData(data);
     }

@@ -457,10 +457,10 @@ pub fn send_instructions(
         recent_hash,
     );
 
-    // let result = simulate_transaction(&client, &txn, true, CommitmentConfig::single_gossip())?;
-    // if let Some(e) = result.value.err {
-    //     return Err(format_err!("simulate_transaction error: {:?}", e));
-    // }
+    let result = simulate_transaction(&client, &txn, true, CommitmentConfig::single_gossip())?;
+    if let Some(e) = result.value.err {
+        return Err(format_err!("simulate_transaction error: {:?}", e));
+    }
     send_txn(&client, &txn, false)?;
     Ok(())
 }

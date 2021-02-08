@@ -11,7 +11,7 @@ use client::utils::{Cluster, create_account_instr, create_and_init_mint_instr,
                     create_signer_key_and_nonce, create_token_account_instr, get_account,
                     mnemonic_to_keypair, read_keypair_file, send_instructions};
 use omega::instruction::{init_omega_contract, resolve};
-use omega::state::{DETAILS_BUFFER_LEN, OmegaContract};
+use omega::state::{DETAILS_BUFFER_LEN, OmegaContract, Loadable};
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -102,7 +102,7 @@ pub enum Command {
 
 impl Opts {
     fn client(&self) -> RpcClient {
-        RpcClient::new_with_commitment(self.cluster.url().to_string(), CommitmentConfig::single_gossip())
+        RpcClient::new_with_commitment(self.cluster.url().to_string(), CommitmentConfig::confirmed())
     }
 }
 
@@ -272,6 +272,12 @@ pub fn start(opts: Opts) -> Result<()> {
             };
             let omega_program_id = Pubkey::from_str(contract_keys["omega_program_id"].as_str().unwrap())?;
             let omega_contract_pk = Pubkey::from_str(contract_keys["omega_contract_pk"].as_str().unwrap())?;
+
+            println!("{} {} {} {}", omega_program_id.to_string(), omega_contract_pk.to_string(), oracle_keypair.pubkey().to_string(), winner_pk.to_string());
+
+            let contract = client.get_account(&omega_contract_pk)?;
+            let contract = OmegaContract::load_from_bytes(contract.data.as_slice())?;
+            println!("{}", contract.exp_time);
 
             let instruction = resolve(
                 &omega_program_id,

@@ -317,6 +317,7 @@ export const useEnrichedPools = (pools: PoolInfo[]) => {
       return;
     }
 
+    // @ts-ignore
     const mints = [...new Set([...marketsByMint?.keys()]).keys()];
 
     const subscriptions = mints.map((m) => subscribeToMarket(m));
